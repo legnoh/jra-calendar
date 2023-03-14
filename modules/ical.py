@@ -3,6 +3,7 @@ import base64
 
 BASE_URL="https://jra.jp/keiba"
 COMMON_URL="{u}/common".format(u=BASE_URL)
+TOHYO_URL="https://www.ipat.jra.go.jp/"
 NYUJO_URL="https://jra-pass.pia.jp/"
 
 LOCATIONS_SHORTNAME=["札幌", "函館", "福島", "新潟", "東京", "中山", "中京", "京都", "阪神", "小倉"]
@@ -88,7 +89,7 @@ def create_event_block(race: dict):
     x_apple_structured_location = get_x_apple_structured_location(race["festival_location"])
 
     # 本文を作る
-    description = '特集ページ: {url}\n入場: {nurl}'.format(url=race["jra_url"],nurl=NYUJO_URL)
+    description = '特集ページ: {url}\n投票:{iurl}\n入場: {nurl}'.format(url=race["jra_url"],iurl=TOHYO_URL,nurl=NYUJO_URL)
 
     event = Event()
     event.add('UID', uid)

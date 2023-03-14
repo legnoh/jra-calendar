@@ -38,5 +38,5 @@ for race in grade_races:
 
 print("----Output ics file")
 os.mkdir("./dist")
-with open("./dist/jra-grade-races.ics", mode='w') as f:
+with open("./dist/graderaces.ics", mode='w') as f:
     f.write(cal.to_ical().decode("utf-8"))
