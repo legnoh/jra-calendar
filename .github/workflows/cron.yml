@@ -1,0 +1,41 @@
+name: Cron
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check Out Repo 
+      uses: actions/checkout@v3
+    - uses: nanasess/setup-chromedriver@v1.0.5
+    - name: Install pipenv
+      run: pipx install pipenv
+    - name: Setup Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.x'
+        cache: pipenv
+    - name: Install dependencies
+      run: pipenv install
+    - name: Start XVFB
+      run: Xvfb :99 &
+    - name: Execute
+      run: pipenv run main
+      env:
+        DISPLAY: :99
+        TZ: ${{ secrets.TZ }}
+    - name: Deploy to Netlify
+      uses: nwtgck/actions-netlify@v1.2
+      with:
+        publish-dir: './dist'
+        production-deploy: true
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
