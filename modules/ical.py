@@ -89,7 +89,7 @@ def create_event_block(race: dict):
     x_apple_structured_location = get_x_apple_structured_location(race["festival_location"])
 
     # 本文を作る
-    description = '特集ページ: {url}\n投票:{iurl}\n入場: {nurl}'.format(url=race["jra_url"],iurl=TOHYO_URL,nurl=NYUJO_URL)
+    description = '特集ページ: {url}\n投票: {iurl}\n入場: {nurl}'.format(url=race["jra_url"],iurl=TOHYO_URL,nurl=NYUJO_URL)
 
     event = Event()
     event.add('UID', uid)
