@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "a44d811bdc8678950b13035cae7da61af3c36f4f125c2d24f9421e9be3268a11"
+            "sha256": "5d6550f29c091312435f450075d42d673d7760c1b501f7a6effa8eaa6a6920ab"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -121,12 +121,20 @@
             "markers": "python_full_version >= '3.7.0'",
             "version": "==3.1.0"
         },
-        "chromedriver-binary": {
+        "chromedriver-binary-auto": {
             "hashes": [
-                "sha256:60a0ec66538a7761c2130eb53497710c46a2ecbbeef3b7eddaa0c1f6a42bd4df"
+                "sha256:13b48b2ad78ae90f580b56cbc372618dabfd6844153cd652fa5670f0ef62e643"
             ],
             "index": "pypi",
-            "version": "==111.0.5563.64.0"
+            "version": "==0.2.3"
+        },
+        "exceptiongroup": {
+            "hashes": [
+                "sha256:232c37c63e4f682982c8b6459f33a8981039e5fb8756b2074364e5055c498c9e",
+                "sha256:d484c3090ba2889ae2928419117447a14daf3c1231d5e30d0aae34f354f01785"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==1.1.1"
         },
         "h11": {
             "hashes": [
@@ -232,14 +240,13 @@
         },
         "trio-websocket": {
             "hashes": [
-                "sha256:5b558f6e83cc20a37c3b61202476c5295d1addf57bd65543364e0337e37ed2bc",
-                "sha256:a3d34de8fac26023eee701ed1e7bf4da9a8326b61a62934ec9e53b64970fd8fe"
+                "sha256:5a7a256cf45532a0e876b55c173f96228e95445869b6dfdb1556015de89796fa",
+                "sha256:ae0a8bab4b0014510aca37fb67a6eaaa77e64aba372a7333845d2eb991989ae2"
             ],
-            "markers": "python_version >= '3.5'",
-            "version": "==0.9.2"
+            "markers": "python_version >= '3.7'",
+            "version": "==0.10.0"
         },
         "urllib3": {
-            "extras": [],
             "hashes": [
                 "sha256:8a388717b9476f934a21484e8c8e61875ab60644d29b9b39e11e4b9dc1c6b305",
                 "sha256:aa751d169e23c7479ce47a0cb0da579e3ede798f994f5816a74e4f4500dcea42"
