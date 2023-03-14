@@ -35,6 +35,7 @@ jobs:
       with:
         publish-dir: './dist'
         production-deploy: true
+        enable-commit-comment: false
         github-token: ${{ secrets.WRITABLE_TOKEN }}
       env:
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
