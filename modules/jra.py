@@ -1,8 +1,6 @@
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
-import chromedriver_binary
-import requests,re
+import logging,requests,re
 from datetime import datetime, timezone, timedelta
 
 BASE_URL="https://jra.jp/keiba"
@@ -26,7 +24,7 @@ def get_max_link_point() -> datetime:
         max_link_point = datetime.strptime(json[0]['link-point'] + " +0900", '%Y/%m/%d %z')
         return max_link_point
     except requests.exceptions.RequestException:
-        print('HTTP Request failed')
+        logging.warn('HTTP Request failed')
         return None
 
 def get_grade_races_by_month(driver:webdriver.Chrome, year:int, month:int, max_link_point: datetime) -> list:
@@ -89,7 +87,7 @@ def get_grade_races_by_month(driver:webdriver.Chrome, year:int, month:int, max_l
         return grade_races
 
     except requests.exceptions.RequestException:
-        print('HTTP Request failed')
+        logging.warn('HTTP Request failed')
         return None
 
 def get_race_more_info(driver:webdriver.Chrome, name: str, date: datetime) -> dict:
