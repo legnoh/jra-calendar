@@ -22,6 +22,8 @@ jobs:
         cache: pipenv
     - name: Install dependencies
       run: pipenv install
+    - name: check locale
+      run: locale -a
     - name: Start XVFB
       run: Xvfb :99 &
     - name: Execute
