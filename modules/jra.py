@@ -2,9 +2,11 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import logging,requests,re
 from datetime import datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
 
 BASE_URL="https://jra.jp/keiba"
 COMMON_URL="{u}/common".format(u=BASE_URL)
+ORIGIN_TZ=ZoneInfo("Asia/Tokyo")
 
 def get_calendar_active_years(driver) -> list:
     driver.get("{u}/calendar/".format(u=BASE_URL))
@@ -50,9 +52,9 @@ def get_grade_races_by_month(driver:webdriver.Chrome, year:int, month:int, max_l
                         "name": race['name'],
                         "detail": race['detail'],
                         "grade": race['grade'],
-                        "start_at": datetime(year=year, month=month, day=race_day, tzinfo=timezone(timedelta(hours=9))),
+                        "start_at": datetime(year=year, month=month, day=race_day, tzinfo=ORIGIN_TZ),
                         "end_at": None,
-                        "jra_url": None,
+                        "special_url": None,
                         "netkeiba_url": None,
                     }
 
@@ -62,7 +64,7 @@ def get_grade_races_by_month(driver:webdriver.Chrome, year:int, month:int, max_l
                             race_data['detail'],
                             race_data['start_at'])
                         race_data['start_at'] = more_info['start_at']
-                        race_data['jra_url'] = more_info['jra_url']
+                        race_data['special_url'] = more_info['jra_url']
                         race_data['festival_time'] = more_info['festival_time']
                         race_data['festival_day'] = more_info['festival_day']
                         race_data['race_number'] = more_info['race_number']
@@ -140,7 +142,7 @@ def get_race_more_info(driver:webdriver.Chrome, name: str, date: datetime) -> di
                             day=date.day,
                             hour=int(race_time_m.group(1)),
                             minute=int(race_time_m.group(2)),
-                            tzinfo=timezone(timedelta(hours=9)),
+                            tzinfo=ORIGIN_TZ,
                         ),
                         'jra_url': jra_url,
                     }
