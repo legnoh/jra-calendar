@@ -59,15 +59,15 @@ def get_grade_races_by_year(driver:WebDriver, year:int) -> list:
     races = driver.find_elements(By.CSS_SELECTOR, "div#list > div.month > ul > li.js-item > a")
 
     for race in races:
-        grade = race.find_element(By.CSS_SELECTOR, "h4").get_attribute("class")
         meta = race.find_elements(By.CSS_SELECTOR, "p")
-        if grade in ["jpn1", "jpn2", "jpn3"]:
+        location = meta[1].text.split(' ')[0]
+        if location in KEIBAGO_BABA_CODES.keys():
             race_data = {
-                "festival_location": meta[1].text.split(' ')[0],
+                "festival_location": location,
                 "race_number": None,
                 "name": race.find_element(By.CSS_SELECTOR, "h4").text.replace("ステークス", "S").replace("カップ", "C"),
                 "detail": race.find_element(By.CSS_SELECTOR, "h4").text,
-                "grade": grade.capitalize(),
+                "grade": race.find_element(By.CSS_SELECTOR, "h4").get_attribute("class").capitalize(),
                 "start_at": datetime.strptime(meta[0].text.replace("祝", ""), "%m月%d日(%a)").replace(year=year,tzinfo=ORIGIN_TZ),
                 "end_at": None,
                 "special_url": race.get_attribute('href').replace("racecard", "analysis"),
