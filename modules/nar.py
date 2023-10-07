@@ -82,7 +82,7 @@ def get_grade_races_by_year(driver:WebDriver, year:int) -> list:
 
         # 発走時刻が取得できた場合は5分間、それ以外は全日イベントとして定義
         if race_data["start_at"].hour != 0:
-            race_data["end_at"] = race_data["start_at"] + timedelta(minutes=55)
+            race_data["end_at"] = race_data["start_at"] + timedelta(minutes=5)
         else:
             race_data["end_at"] = (race_data["start_at"] + timedelta(days=1)).date()
             race_data["start_at"] = race_data["start_at"].date()
