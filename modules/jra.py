@@ -88,7 +88,7 @@ def get_grade_races_by_month(driver:webdriver.Chrome, year:int, month:int, max_l
                     
                     # 過去のレースの場合はアーカイブURLを追加する
                     if (now - race_data["end_at"]).second > 0:
-                        race_data["archive_url"] = "https://www.youtube.com/@jraofficial/search?query={n}+{y}".format(n=race_data["end_at"].year, n=race_data["detail"])
+                        race_data["archive_url"] = "https://www.youtube.com/@jraofficial/search?query={n}+{y}".format(n=race_data["detail"], y=race_data["end_at"].year)
 
                     grade_races.append(race_data)
                     print("{d}: {name}".format(d=race_data["start_at"], name=race_data["detail"]))
