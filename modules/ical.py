@@ -267,6 +267,8 @@ def create_event_block(race: dict):
     locateinfo = LOCATIONS_INFO[race["festival_location"]]
     if race["special_url"] != None:
         urls.append("分析: {u}".format(u=race["special_url"]))
+    if race["netkeiba_url"] != None:
+        urls.append("出走: {u}".format(u=race["netkeiba_url"]))
     if locateinfo["admission"] != None:
         urls.append("入場: {u}".format(u=locateinfo["admission"]))
     if locateinfo["reservation"] != None:
