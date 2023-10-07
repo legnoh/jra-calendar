@@ -4,6 +4,8 @@ import base64
 BASE_URL="https://jra.jp/keiba"
 COMMON_URL="{u}/common".format(u=BASE_URL)
 
+# 各競馬場のgeoの位置は徒歩で行った際の合理的な入場門の位置にする
+# (競馬場の中心にピンが立っていると使えない経路が出てくることが多々あるため)
 LOCATIONS_INFO={
     "札幌": {
         "name": "札幌競馬場",
