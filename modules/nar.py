@@ -72,6 +72,7 @@ def get_grade_races_by_year(driver:WebDriver, year:int) -> list:
                 "end_at": None,
                 "special_url": race.get_attribute('href').replace("racecard", "analysis"),
                 "netkeiba_url": None,
+                "archive_url": None,
             }
             grade_races.append(race_data)
     
@@ -92,6 +93,9 @@ def get_grade_races_by_year(driver:WebDriver, year:int) -> list:
             race_data["netkeiba_url"] = get_netkeiba_url(race_data["start_at"], race_data["festival_location"], race_data["race_number"], now)
         print("{d}: {name}".format(d=race_data["start_at"], name=race_data["detail"]))
 
+        # 過去のレースの場合はアーカイブURLを追加する
+        if (now - race_data["end_at"]).second > 0:
+            race_data["archive_url"] = "https://www.youtube.com/@nar_keiba/search?query={n}+{y}".format(n=race_data["end_at"].year, n=race_data["detail"])
     return grade_races
 
 def get_start_time_and_race_number(driver:WebDriver, name:str, date:datetime, location:str):

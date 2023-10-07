@@ -31,6 +31,7 @@ def get_max_link_point() -> datetime:
 
 def get_grade_races_by_month(driver:webdriver.Chrome, year:int, month:int, max_link_point: datetime) -> list:
     grade_races = []
+    now = datetime.now(ORIGIN_TZ)
 
     try:
         response = requests.get(
@@ -56,6 +57,7 @@ def get_grade_races_by_month(driver:webdriver.Chrome, year:int, month:int, max_l
                         "end_at": None,
                         "special_url": None,
                         "netkeiba_url": None,
+                        "archive_url": None,
                     }
 
                     if race_data['start_at'] <= max_link_point:
@@ -83,6 +85,10 @@ def get_grade_races_by_month(driver:webdriver.Chrome, year:int, month:int, max_l
                         race_data["end_at"] = race_data["start_at"] + timedelta(days=1)
                         race_data["start_at"] = race_data["start_at"].date()
                         race_data["end_at"] = race_data["end_at"].date()
+                    
+                    # 過去のレースの場合はアーカイブURLを追加する
+                    if (now - race_data["end_at"]).second > 0:
+                        race_data["archive_url"] = "https://www.youtube.com/@jraofficial/search?query={n}+{y}".format(n=race_data["end_at"].year, n=race_data["detail"])
 
                     grade_races.append(race_data)
                     print("{d}: {name}".format(d=race_data["start_at"], name=race_data["detail"]))
