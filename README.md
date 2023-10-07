@@ -9,7 +9,7 @@
 - 中央競馬とダートグレード競走の開催予定カレンダーです。
   - 外部カレンダーなどで登録することで、自動的にカレンダーを読み込めます。
     - iCloud: [iCloud の照会カレンダーを使う - Apple サポート (日本)](https://support.apple.com/ja-jp/HT202361)
-    - Googleカレンダー: [リンクを使用して一般公開のカレンダーを追加する \- パソコン \- Google カレンダー ヘルプ](https://support.google.com/calendar/answer/37100?hl=ja&co=GENIE.Platform%3DDesktop#:~:text=リンクを使用して一般公開のカレンダーを追加する)
+    - Googleカレンダー: [リンクを使用して一般公開のカレンダーを追加する \- Google カレンダー ヘルプ](https://support.google.com/calendar/answer/37100?hl=ja&co=GENIE.Platform%3DDesktop#:~:text=リンクを使用して一般公開のカレンダーを追加する)
 - JRA, NAR提供のものに比べ、以下の利点があります。
   - 確定している発走時刻を自動で取得し、発走時刻にイベント時刻を合わせます。
   - 公式サイトの分析ページのURL、NetkeibaのURL、地方競馬の配信URLなど、さまざまな情報にリンクしやすくなります。
