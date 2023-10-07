@@ -3,8 +3,6 @@ import base64
 
 BASE_URL="https://jra.jp/keiba"
 COMMON_URL="{u}/common".format(u=BASE_URL)
-TOHYO_URL="https://www.ipat.jra.go.jp/"
-NYUJO_URL="https://jra-tickets.jp/"
 
 LOCATIONS_INFO={
     "札幌": {
@@ -285,7 +283,10 @@ def create_event_block(race: dict):
     event.add('DESCRIPTION', description)
     event.add('DTSTART', race["start_at"])
     event.add('DTEND', race["end_at"])
-    event.add('LOCATION', "{t}\n{a}".format(t=x_apple_structured_location['parameters']['X-TITLE'], a=x_apple_structured_location['parameters']['X-ADDRESS'])),
+    event.add('LOCATION', "{t}\n{a}".format(
+        t=x_apple_structured_location['parameters']['X-TITLE'],
+        a=x_apple_structured_location['parameters']['X-ADDRESS']
+    )),
     event.add(**x_apple_structured_location)
     event.add('TRANSP', 'TRANSPARENT')
     if race['netkeiba_url'] != None:
