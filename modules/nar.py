@@ -1,9 +1,6 @@
-from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
-from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
-import unicodedata
-import locale
+from selenium.webdriver.remote.webdriver import WebDriver
+import datetime,locale,unicodedata,zoneinfo
 
 NETKEIBA_SCHEDULE_URL = "https://nar.netkeiba.com/top/schedule.html"
 KEIBAGO_DIRTRACE_ROOT_URL = "https://www.keiba.go.jp/dirtgraderace"
@@ -44,11 +41,11 @@ NETKEIBA_LOCATE_IDS = {
     "帯広": 65,
 }
 
-ORIGIN_TZ = ZoneInfo("Asia/Tokyo")
+ORIGIN_TZ = zoneinfo.ZoneInfo("Asia/Tokyo")
 
 def get_grade_races_by_year(driver:WebDriver, year:int) -> list:
     locale.setlocale(locale.LC_TIME, 'ja_JP.UTF-8')
-    now = datetime.now(ORIGIN_TZ)
+    now = datetime.datetime.now(ORIGIN_TZ)
     grade_races = []
 
     driver.get("{u}/{y}/racelist/index.html".format(
@@ -68,7 +65,7 @@ def get_grade_races_by_year(driver:WebDriver, year:int) -> list:
                 "name": race.find_element(By.CSS_SELECTOR, "h4").text.replace("ステークス", "S").replace("カップ", "C"),
                 "detail": race.find_element(By.CSS_SELECTOR, "h4").text,
                 "grade": race.find_element(By.CSS_SELECTOR, "h4").get_attribute("class").capitalize(),
-                "start_at": datetime.strptime(meta[0].text.replace("祝", ""), "%m月%d日(%a)").replace(year=year,tzinfo=ORIGIN_TZ),
+                "start_at": datetime.datetime.strptime(meta[0].text.replace("祝", ""), "%m月%d日(%a)").replace(year=year,tzinfo=ORIGIN_TZ),
                 "end_at": None,
                 "special_url": race.get_attribute('href').replace("racecard", "analysis"),
                 "netkeiba_url": None,
@@ -80,25 +77,26 @@ def get_grade_races_by_year(driver:WebDriver, year:int) -> list:
 
         if (race_data["start_at"] - now).days < 5:
             race_data["start_at"], race_data["race_number"] = get_start_time_and_race_number(driver, race_data['detail'], race_data['start_at'], race_data['festival_location'])
+        
+        # 過去のレースの場合はアーカイブURLを追加する
+        if race_data["start_at"].date() < now.date():
+            race_data["archive_url"] = "https://www.youtube.com/@nar_keiba/search?query={n}+{y}".format(n=race_data["name"], y=race_data["start_at"].year)
 
         # 発走時刻が取得できた場合は5分間、それ以外は全日イベントとして定義
         if race_data["start_at"].hour != 0:
-            race_data["end_at"] = race_data["start_at"] + timedelta(minutes=5)
+            race_data["end_at"] = race_data["start_at"] + datetime.timedelta(minutes=5)
         else:
-            race_data["end_at"] = (race_data["start_at"] + timedelta(days=1)).date()
+            race_data["end_at"] = (race_data["start_at"] + datetime.timedelta(days=1)).date()
             race_data["start_at"] = race_data["start_at"].date()
         
         # レース番が取得できた場合はNETKEIBAのURLも定義
         if race_data["race_number"] != None:
             race_data["netkeiba_url"] = get_netkeiba_url(race_data["start_at"], race_data["festival_location"], race_data["race_number"], now)
+        
         print("{d}: {name}".format(d=race_data["start_at"], name=race_data["detail"]))
-
-        # 過去のレースの場合はアーカイブURLを追加する
-        if type(race_data["end_at"]) is datetime and (now - race_data["end_at"]).seconds > 0:
-            race_data["archive_url"] = "https://www.youtube.com/@nar_keiba/search?query={n}+{y}".format(n=race_data["name"], y=race_data["end_at"].year)
     return grade_races
 
-def get_start_time_and_race_number(driver:WebDriver, name:str, date:datetime, location:str):
+def get_start_time_and_race_number(driver:WebDriver, name:str, date:datetime.datetime, location:str):
 
     driver.get("{u}?k_raceDate={y}%2f{m}%2f{d}&k_babaCode={b}".format(
         u=KEIBAGO_RACELIST_URL,
@@ -119,7 +117,7 @@ def get_start_time_and_race_number(driver:WebDriver, name:str, date:datetime, lo
             return date, race_number
     return date, None
 
-def get_netkeiba_url(date:datetime, location:str, race_number:int, now:datetime):
+def get_netkeiba_url(date:datetime.datetime, location:str, race_number:int, now:datetime.datetime):
     return "https://nar.netkeiba.com/race/{p}.html?race_id={y}{l}{m:0>2}{d:0>2}{n:0>2}".format(
         p="result" if date < now else "shutuba", # 過去のレースは着順表、今後のレースは出馬表を出す
         y=date.year,

@@ -1,11 +1,9 @@
 from icalendar import Event
-from datetime import datetime
-from zoneinfo import ZoneInfo
-import base64
+import base64,datetime,zoneinfo
 
 BASE_URL="https://jra.jp/keiba"
 COMMON_URL="{u}/common".format(u=BASE_URL)
-ORIGIN_TZ=ZoneInfo("Asia/Tokyo")
+ORIGIN_TZ=zoneinfo.ZoneInfo("Asia/Tokyo")
 
 # 各競馬場のgeoの位置は徒歩で行った際の合理的な入場門の位置にする
 # (競馬場の中心にピンが立っていると使えない経路が出てくることが多々あるため)
@@ -254,7 +252,7 @@ def get_x_apple_structured_location(race_course: str):
 
 def create_event_block(race: dict):
 
-    now = datetime.now(tz=ORIGIN_TZ)
+    now = datetime.datetime.now(tz=ORIGIN_TZ)
 
     # UIDを作る
     raw_uid = "{s}{t}".format(s=race['start_at'],t=race['name'])
@@ -275,10 +273,14 @@ def create_event_block(race: dict):
     locateinfo = LOCATIONS_INFO[race["festival_location"]]
     if race["special_url"] != None:
         urls.append("分析: {u}".format(u=race["special_url"]))
-    if race["netkeiba_url"] != None and (type(race["end_at"]) is datetime.date or (type(race["end_at"]) is datetime and (now - race["end_at"]).seconds < 0)):
-        urls.append("出走: {u}".format(u=race["netkeiba_url"]))
-    if race["netkeiba_url"] != None and (type(race["end_at"]) is datetime and (now - race["end_at"]).seconds > 0):
-        urls.append("結果: {u}".format(u=race["netkeiba_url"]))
+    if race["netkeiba_url"] != None:
+        if type(race["end_at"]) is datetime.date:
+            urls.append("出走: {u}".format(u=race["netkeiba_url"]))
+        elif type(race["end_at"]) is datetime.datetime:
+            if now < race["end_at"]:
+                urls.append("出走: {u}".format(u=race["netkeiba_url"]))
+            else:
+                urls.append("結果: {u}".format(u=race["netkeiba_url"]))
     if race["archive_url"] != None:
         urls.append("映像: {u}".format(u=race["archive_url"]))
     if locateinfo["admission"] != None:

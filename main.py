@@ -1,4 +1,4 @@
-import logging,os,platform
+import logging,os
 import modules.jra as jra
 import modules.nar as nar
 import modules.ical as jraIcal
