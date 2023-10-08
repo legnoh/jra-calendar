@@ -280,7 +280,7 @@ def create_event_block(race: dict):
     if race["netkeiba_url"] != None and type(race["end_at"]) is datetime and (now - race["end_at"]).seconds > 0:
         urls.append("結果: {u}".format(u=race["netkeiba_url"]))
     if race["archive_url"] != None:
-        urls.append("映像: {u}".format(u=locateinfo["archive_url"]))
+        urls.append("映像: {u}".format(u=race["archive_url"]))
     if locateinfo["admission"] != None:
         urls.append("入場: {u}".format(u=locateinfo["admission"]))
     if locateinfo["reservation"] != None:
