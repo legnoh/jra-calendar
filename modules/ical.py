@@ -275,9 +275,9 @@ def create_event_block(race: dict):
     locateinfo = LOCATIONS_INFO[race["festival_location"]]
     if race["special_url"] != None:
         urls.append("分析: {u}".format(u=race["special_url"]))
-    if race["netkeiba_url"] != None and type(race["end_at"]) is datetime.date or (type(race["end_at"]) is datetime and (now - race["end_at"]).seconds < 0):
+    if race["netkeiba_url"] != None and (type(race["end_at"]) is datetime.date or (type(race["end_at"]) is datetime and (now - race["end_at"]).seconds < 0)):
         urls.append("出走: {u}".format(u=race["netkeiba_url"]))
-    if race["netkeiba_url"] != None and type(race["end_at"]) is datetime and (now - race["end_at"]).seconds > 0:
+    if race["netkeiba_url"] != None and (type(race["end_at"]) is datetime and (now - race["end_at"]).seconds > 0):
         urls.append("結果: {u}".format(u=race["netkeiba_url"]))
     if race["archive_url"] != None:
         urls.append("映像: {u}".format(u=race["archive_url"]))
