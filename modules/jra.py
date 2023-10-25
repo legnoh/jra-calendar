@@ -78,7 +78,7 @@ def get_grade_races_by_month(driver:WebDriver, year:int, month:int, max_link_poi
                     
                     # 過去のレースの場合はアーカイブURLを追加する
                     if race_data["start_at"].date() < now.date():
-                        race_data["archive_url"] = "https://www.youtube.com/@nar_keiba/search?query={n}+{y}".format(n=race_data["name"], y=race_data["start_at"].year)
+                        race_data["archive_url"] = "https://www.youtube.com/@jraofficial/search?query={n}+{y}".format(n=race_data["name"], y=race_data["start_at"].year)
 
                     # 発走時刻が取得できた場合は5分間、それ以外は全日イベントとして定義
                     if race_data["start_at"].hour != 0:
