@@ -65,7 +65,7 @@ def get_grade_races_by_year(driver:WebDriver, year:int) -> list:
                 "name": race.find_element(By.CSS_SELECTOR, "h4").text.replace("ステークス", "S").replace("カップ", "C"),
                 "detail": race.find_element(By.CSS_SELECTOR, "h4").text,
                 "grade": race.find_element(By.CSS_SELECTOR, "h4").get_attribute("class").capitalize(),
-                "start_at": datetime.datetime.strptime(meta[0].text.replace("祝", ""), "%m月%d日(%a)").replace(year=year,tzinfo=ORIGIN_TZ),
+                "start_at": datetime.datetime.strptime(meta[0].text.replace("祝", "").text.replace("振", ""), "%m月%d日(%a)").replace(year=year,tzinfo=ORIGIN_TZ),
                 "end_at": None,
                 "special_url": race.get_attribute('href').replace("racecard", "analysis"),
                 "netkeiba_url": None,
