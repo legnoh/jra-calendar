@@ -58,6 +58,7 @@ def get_grade_races_by_year(driver:WebDriver, year:int) -> list:
     for race in races:
         meta = race.find_elements(By.CSS_SELECTOR, "p")
         location = meta[1].text.split(' ')[0]
+        meta_start_at = "{y}年{mdw}".format(y=year,mdw=meta[0].text.replace("祝", "").replace("振", ""))
         if location in KEIBAGO_BABA_CODES.keys():
             race_data = {
                 "festival_location": location,
@@ -65,7 +66,7 @@ def get_grade_races_by_year(driver:WebDriver, year:int) -> list:
                 "name": race.find_element(By.CSS_SELECTOR, "h4").text.replace("ステークス", "S").replace("カップ", "C"),
                 "detail": race.find_element(By.CSS_SELECTOR, "h4").text,
                 "grade": race.find_element(By.CSS_SELECTOR, "h4").get_attribute("class").capitalize(),
-                "start_at": datetime.datetime.strptime(meta[0].text.replace("祝", "").replace("振", ""), "%m月%d日(%a)").replace(year=year,tzinfo=ORIGIN_TZ),
+                "start_at": datetime.datetime.strptime(meta_start_at, "%Y年%m月%d日(%a)").replace(tzinfo=ORIGIN_TZ),
                 "end_at": None,
                 "special_url": race.get_attribute('href').replace("racecard", "analysis"),
                 "netkeiba_url": None,
