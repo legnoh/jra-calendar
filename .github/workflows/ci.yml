@@ -20,6 +20,10 @@ jobs:
         cache: pipenv
     - name: Install dependencies
       run: pipenv install
+    - name: set locale
+      run: |
+        sudo locale-gen ja_JP.UTF-8
+        sudo update-locale LANG=ja_JP.UTF-8
     - name: Start XVFB
       run: Xvfb :99 &
     - name: Execute
