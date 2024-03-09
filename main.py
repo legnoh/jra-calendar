@@ -12,36 +12,44 @@ logging.basicConfig(format=log_format, datefmt='%Y-%m-%d %H:%M:%S%z', level=logg
 if __name__ == '__main__':
 
     # initialize
-    logging.info("----Initialize")
+    logging.info("# Initialize")
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
 
     driver = webdriver.Chrome(service=Service(), options=options)
     driver.implicitly_wait(10)
 
-    # get all active year
-    logging.info("----Get all active year")
-    years = jra.get_calendar_active_years(driver)
+    logging.info("# JRA")
 
-    # get active link point settings
-    logging.info("----Get active link point settings")
+    ## get active link point settings
+    logging.info("## Get active link point settings")
     max_link_point = jra.get_max_link_point()
+    
+    ## get all active year
+    logging.info("## Get all active year")
+    years:list[str] = jra.get_calendar_active_years(driver)
 
-    # get all JRA grade race in all active year
-    logging.info("----Get all JRA grade race in all active year")
+    ## get all JRA grade race in all active year
+    logging.info("## Get all JRA grade race in all active year")
     jra_grade_races = []
     for year in years:
         for month in range(1, 13):
             jra_grade_races = jra_grade_races + jra.get_grade_races_by_month(driver, year, month, max_link_point)
     
-    # get all NAR grade race in last 2 year
-    logging.info("----Get all Dirt grade race in last 2 year")
+    logging.info("# NAR")
+
+    ## get all active year
+    logging.info("## Get all active year")
+    years:list[str] = nar.get_calendar_active_years(driver)
+
+    ## get all NAR grade race in all active year
+    logging.info("## Get all Dirt grade race in all active year")
     dirt_grade_races = []
     for year in years:
         dirt_grade_races = dirt_grade_races + nar.get_grade_races_by_year(driver, year)
 
     # # compose iCalendar file
-    logging.info("----Generate ical data")
+    logging.info("# Generate ical data")
     cal = Calendar()
     cal.add("X-WR-CALNAME", "競馬重賞")
     cal.add("X-APPLE-CALENDAR-COLOR", "#268300")
@@ -52,7 +60,7 @@ if __name__ == '__main__':
         event = jraIcal.create_event_block(race)
         cal.add_component(event)
 
-    logging.info("----Output ics file")
+    logging.info("# Output ics file")
     if not os.path.exists("./dist"):
         os.mkdir("./dist")
     with open("./dist/graderaces.ics", mode='w') as f:

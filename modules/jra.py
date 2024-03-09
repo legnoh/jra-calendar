@@ -6,7 +6,7 @@ BASE_URL="https://jra.jp/keiba"
 COMMON_URL="{u}/common".format(u=BASE_URL)
 ORIGIN_TZ=zoneinfo.ZoneInfo("Asia/Tokyo")
 
-def get_calendar_active_years(driver) -> list:
+def get_calendar_active_years(driver) -> list[str]:
     driver.get("{u}/calendar/".format(u=BASE_URL))
     years_li = driver.find_elements(By.CSS_SELECTOR, "div#mainBody > div.cal_year > ul > li")
     years = []
@@ -89,7 +89,7 @@ def get_grade_races_by_month(driver:WebDriver, year:int, month:int, max_link_poi
                         race_data["end_at"] = race_data["end_at"].date()
 
                     grade_races.append(race_data)
-                    print("{d}: {name}".format(d=race_data["start_at"], name=race_data["detail"]))
+                    logging.info("### {d}: {name}".format(d=race_data["start_at"], name=race_data["detail"]))
         return grade_races
 
     except requests.exceptions.RequestException:

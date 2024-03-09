@@ -1,6 +1,6 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
-import datetime,locale,unicodedata,zoneinfo
+import datetime,locale,logging,unicodedata,zoneinfo
 
 NETKEIBA_SCHEDULE_URL = "https://nar.netkeiba.com/top/schedule.html"
 KEIBAGO_DIRTRACE_ROOT_URL = "https://www.keiba.go.jp/dirtgraderace"
@@ -43,22 +43,42 @@ NETKEIBA_LOCATE_IDS = {
 
 ORIGIN_TZ = zoneinfo.ZoneInfo("Asia/Tokyo")
 
+def get_calendar_active_years(driver:WebDriver) -> list[str]:
+
+    years:list[str] = []
+    driver.get(f"{KEIBAGO_DIRTRACE_ROOT_URL}/")
+    links = driver.find_elements(By.CSS_SELECTOR, "ul.global-nav__list > li > a")
+    for link in links:
+        if link.accessible_name == "レース一覧":
+            href = link.get_attribute("href")
+            driver.get(href)
+            years_a = driver.find_elements(By.CSS_SELECTOR, "div.racelist_dd > ul.dd_menu > li > a")
+            for year_a in years_a:
+                years.append(year_a.get_attribute('text').replace('年', ''))
+            return years
+    return years
+
 def get_grade_races_by_year(driver:WebDriver, year:int) -> list:
     locale.setlocale(locale.LC_TIME, 'ja_JP.UTF-8')
     now = datetime.datetime.now(ORIGIN_TZ)
     grade_races = []
 
-    driver.get("{u}/{y}/racelist/index.html".format(
-        u=KEIBAGO_DIRTRACE_ROOT_URL,
-        y=year
-    ))
-
-    races = driver.find_elements(By.CSS_SELECTOR, "div#list > div.month > ul > li.js-item > a")
+    driver.get(f"{KEIBAGO_DIRTRACE_ROOT_URL}/{year}/racelist/index.html")
+    races = driver.find_elements(By.CSS_SELECTOR, "div#list > div.month > ul > li.js-item")
 
     for race in races:
+        driver.implicitly_wait(0)
+        if len(race.find_elements(By.CSS_SELECTOR, "a")) > 0:
+            race = race.find_elements(By.CSS_SELECTOR, "a")[0]
+            special_url = race.get_attribute('href').replace("racecard", "analysis")
+        else:
+            special_url = None
+        driver.implicitly_wait(10)
+
         meta = race.find_elements(By.CSS_SELECTOR, "p")
         location = meta[1].text.split(' ')[0]
         meta_start_at = "{y}年{mdw}".format(y=year,mdw=meta[0].text.replace("祝", "").replace("振", ""))
+
         if location in KEIBAGO_BABA_CODES.keys():
             race_data = {
                 "festival_location": location,
@@ -68,17 +88,17 @@ def get_grade_races_by_year(driver:WebDriver, year:int) -> list:
                 "grade": race.find_element(By.CSS_SELECTOR, "h4").get_attribute("class").capitalize(),
                 "start_at": datetime.datetime.strptime(meta_start_at, "%Y年%m月%d日(%a)").replace(tzinfo=ORIGIN_TZ),
                 "end_at": None,
-                "special_url": race.get_attribute('href').replace("racecard", "analysis"),
+                "special_url": special_url,
                 "netkeiba_url": None,
                 "archive_url": None,
             }
             grade_races.append(race_data)
-    
+
     for race_data in grade_races:
 
         if (race_data["start_at"] - now).days < 5:
             race_data["start_at"], race_data["race_number"] = get_start_time_and_race_number(driver, race_data['detail'], race_data['start_at'], race_data['festival_location'])
-        
+
         # 過去のレースの場合はアーカイブURLを追加する
         if race_data["start_at"].date() < now.date():
             race_data["archive_url"] = "https://www.youtube.com/@nar_keiba/search?query={n}+{y}".format(n=race_data["name"], y=race_data["start_at"].year)
@@ -89,12 +109,12 @@ def get_grade_races_by_year(driver:WebDriver, year:int) -> list:
         else:
             race_data["end_at"] = (race_data["start_at"] + datetime.timedelta(days=1)).date()
             race_data["start_at"] = race_data["start_at"].date()
-        
+
         # レース番が取得できた場合はNETKEIBAのURLも定義
         if race_data["race_number"] != None:
             race_data["netkeiba_url"] = get_netkeiba_url(race_data["start_at"], race_data["festival_location"], race_data["race_number"], now)
-        
-        print("{d}: {name}".format(d=race_data["start_at"], name=race_data["detail"]))
+
+        logging.info("### {d}: {name}".format(d=race_data["start_at"], name=race_data["detail"]))
     return grade_races
 
 def get_start_time_and_race_number(driver:WebDriver, name:str, date:datetime.datetime, location:str):
