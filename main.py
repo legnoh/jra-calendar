@@ -70,7 +70,7 @@ if __name__ == '__main__':
     
     cal_nar = Calendar()
     cal_nar.add("X-WR-CALNAME", "競馬重賞(地方)")
-    cal_nar.add("X-APPLE-CALENDAR-COLOR", "#268300")
+    cal_nar.add("X-APPLE-CALENDAR-COLOR", "#A9892F")
     for race in dirt_grade_races:
         event = jraIcal.create_event_block(race)
         cal_nar.add_component(event)
