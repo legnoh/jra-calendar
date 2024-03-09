@@ -1,7 +1,8 @@
-import logging,os
+import datetime,json,logging,os
 import modules.jra as jra
 import modules.nar as nar
 import modules.ical as jraIcal
+import modules.json as jraJson
 from selenium.webdriver.chrome.service import Service
 from selenium import webdriver
 from icalendar import Calendar
@@ -59,9 +60,42 @@ if __name__ == '__main__':
     for race in dirt_grade_races:
         event = jraIcal.create_event_block(race)
         cal.add_component(event)
+    
+    cal_jra = Calendar()
+    cal_jra.add("X-WR-CALNAME", "競馬重賞(中央)")
+    cal_jra.add("X-APPLE-CALENDAR-COLOR", "#268300")
+    for race in jra_grade_races:
+        event = jraIcal.create_event_block(race)
+        cal_jra.add_component(event)
+    
+    cal_nar = Calendar()
+    cal_nar.add("X-WR-CALNAME", "競馬重賞(地方)")
+    cal_nar.add("X-APPLE-CALENDAR-COLOR", "#268300")
+    for race in dirt_grade_races:
+        event = jraIcal.create_event_block(race)
+        cal_nar.add_component(event)
 
     logging.info("# Output ics file")
     if not os.path.exists("./dist"):
         os.mkdir("./dist")
     with open("./dist/graderaces.ics", mode='w') as f:
         f.write(cal.to_ical().decode("utf-8"))
+    with open("./dist/graderaces_jra.ics", mode='w') as f:
+        f.write(cal_jra.to_ical().decode("utf-8"))
+    with open("./dist/graderaces_dirtgrade.ics", mode='w') as f:
+        f.write(cal_nar.to_ical().decode("utf-8"))
+
+    logging.info("# Output json file")
+    now = datetime.datetime.now()
+    all_grade_races = jra_grade_races + dirt_grade_races
+    with open("./dist/graderaces.json", mode='w') as f:
+        d = { "updated_at": now, "races": all_grade_races }
+        json.dump(d, f, indent=2, default=jraJson.json_serial)
+    with open("./dist/graderaces_jra.json", mode='w') as f:
+        d = { "updated_at": now, "races": jra_grade_races }
+        json.dump(d, f, indent=2, default=jraJson.json_serial)
+    with open("./dist/graderaces_dirtgrade.json", mode='w') as f:
+        d = { "updated_at": now, "races": dirt_grade_races }
+        json.dump(d, f, indent=2, default=jraJson.json_serial)
+
+    logging.info("All process was done successfully.")

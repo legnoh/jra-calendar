@@ -1,6 +1,12 @@
 # jra-calendar
 
 - **https://jra.event.lkj.io/graderaces.ics**
+  - https://jra.event.lkj.io/graderaces.ics
+  - https://jra.event.lkj.io/graderaces_jra.ics
+  - https://jra.event.lkj.io/graderaces_dirtgrade.ics
+  - https://jra.event.lkj.io/graderaces.json
+  - https://jra.event.lkj.io/graderaces_jra.json
+  - https://jra.event.lkj.io/graderaces_dirtgrade.json
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/1813c971-2e32-4d0f-844b-e8e9a8a95c67/deploy-status)](https://app.netlify.com/sites/jra-calendar/deploys)
 
