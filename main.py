@@ -4,8 +4,6 @@ import modules.nar as nar
 import modules.overseas as overseas
 import modules.ical as jraIcal
 import modules.json as jraJson
-from selenium.webdriver.chrome.service import Service
-from selenium import webdriver
 from icalendar import Calendar
 
 log_format = '%(asctime)s[%(filename)s:%(lineno)d][%(levelname)s] %(message)s'
@@ -13,56 +11,48 @@ logging.basicConfig(format=log_format, datefmt='%Y-%m-%d %H:%M:%S%z', level=logg
 
 if __name__ == '__main__':
 
-    # initialize
-    logging.info("# Initialize")
-    options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
-
-    driver = webdriver.Chrome(service=Service(), options=options)
-    driver.implicitly_wait(10)
-
     jra_grade_races = []
     dirt_grade_races = []
     overseas_grade_races = []
 
-    # logging.info("# JRA")
+    logging.info("# JRA")
 
-    # ## get active link point settings
-    # logging.info("## Get active link point settings")
-    # max_link_point = jra.get_max_link_point()
+    ## get active link point settings
+    logging.info("## Get active link point settings")
+    max_link_point = jra.get_max_link_point()
     
-    # ## get all active year
-    # logging.info("## Get all active year")
-    # years:list[str] = jra.get_calendar_active_years(driver)
+    ## get all active year
+    logging.info("## Get all active year")
+    years:list[int] = jra.get_calendar_active_years()
 
-    # ## get all JRA grade race in all active year
-    # logging.info("## Get all JRA grade race in all active year")
+    ## get all JRA grade race in all active year
+    logging.info("## Get all JRA grade race in all active year")
     
-    # for year in years:
-    #     for month in range(1, 13):
-    #         jra_grade_races = jra_grade_races + jra.get_grade_races_by_month(driver, year, month, max_link_point)
+    for year in years:
+        for month in range(1, 13):
+            jra_grade_races = jra_grade_races + jra.get_grade_races_by_month(year, month, max_link_point)
     
-    # logging.info("# NAR")
+    logging.info("# NAR")
 
-    # ## get all active year
-    # logging.info("## Get all active year")
-    # years:list[str] = nar.get_calendar_active_years(driver)
+    ## get all active year
+    logging.info("## Get all active year")
+    years:list[int] = nar.get_calendar_active_years()
 
-    # ## get all NAR grade race in all active year
-    # logging.info("## Get all Dirt grade race in all active year")
-    # for year in years:
-    #     dirt_grade_races = dirt_grade_races + nar.get_grade_races_by_year(driver, year)
+    ## get all NAR grade race in all active year
+    logging.info("## Get all Dirt grade race in all active year")
+    for year in years:
+        dirt_grade_races = dirt_grade_races + nar.get_grade_races_by_year(year)
     
     logging.info("# OVERSEAS")
 
     ## get all active year
     logging.info("## Get all active year")
-    years:list[str] = overseas.get_calendar_active_years(driver)
+    years:list[str] = overseas.get_calendar_active_years()
 
-    ## get all NAR grade race in all active year
+    ## get all overseas grade race in all active year
     logging.info("## Get all Overseas grade race in all active year")
     for year in years:
-        overseas_grade_races = overseas_grade_races + overseas.get_grade_races_by_year(driver, year)
+        overseas_grade_races = overseas_grade_races + overseas.get_grade_races_by_year(year)
 
     # # compose iCalendar file
     logging.info("# Generate ical data")

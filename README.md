@@ -1,18 +1,20 @@
 # jra-calendar
 
 - **https://jra.event.lkj.io/graderaces.ics**
-  - https://jra.event.lkj.io/graderaces.ics
-  - https://jra.event.lkj.io/graderaces_jra.ics
-  - https://jra.event.lkj.io/graderaces_dirtgrade.ics
-  - https://jra.event.lkj.io/graderaces.json
-  - https://jra.event.lkj.io/graderaces_jra.json
-  - https://jra.event.lkj.io/graderaces_dirtgrade.json
+  - 全情報入り: https://jra.event.lkj.io/graderaces.ics
+    - JRA国内競争のみ: https://jra.event.lkj.io/graderaces_jra.ics
+    - NARダートグレード競争のみ: https://jra.event.lkj.io/graderaces_dirtgrade.ics
+    - 日本馬参加の海外競争のみ: https://jra.event.lkj.io/graderaces_overseas.ics
+  - 全情報入り(JSON): https://jra.event.lkj.io/graderaces.json
+    - JRA国内競争のみ(JSON): https://jra.event.lkj.io/graderaces_jra.json
+    - NARダートグレード競争のみ(JSON): https://jra.event.lkj.io/graderaces_dirtgrade.json
+    - 日本馬参加の海外競争のみ(JSON): https://jra.event.lkj.io/graderaces_overseas.json
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/1813c971-2e32-4d0f-844b-e8e9a8a95c67/deploy-status)](https://app.netlify.com/sites/jra-calendar/deploys)
 
 ![sample](https://github.com/legnoh/jra-calendar/assets/706834/55e9e1ad-9cef-487e-b50e-177baac820a9)
 
-- 中央競馬とダートグレード競走の開催予定カレンダーです。
+- 中央競馬とダートグレード競走と日本馬参加の海外競走の開催予定カレンダーです。
   - 外部カレンダーなどで登録することで、自動的にカレンダーを読み込めます。
     - iCloud: [iCloud の照会カレンダーを使う - Apple サポート (日本)](https://support.apple.com/ja-jp/HT202361)
     - Googleカレンダー: [リンクを使用して一般公開のカレンダーを追加する \- Google カレンダー ヘルプ](https://support.google.com/calendar/answer/37100?hl=ja&co=GENIE.Platform%3DDesktop#:~:text=リンクを使用して一般公開のカレンダーを追加する)
