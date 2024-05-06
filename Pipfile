@@ -4,9 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-selenium = "*"
 icalendar = "*"
 requests = "*"
+beautifulsoup4 = "*"
 
 [dev-packages]
 
