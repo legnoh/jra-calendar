@@ -161,8 +161,10 @@ def get_grade_races_by_year(year:int) -> list:
             race_data["end_at"] = race_data["end_at"].date()
 
         # 過去のレース、かつ2023年以降の場合はアーカイブURLを追加する
-        if race_data["start_at"].year >= 2023 and race_data["start_at"].date() < now.date():
-            race_data["archive_url"] = "https://www.youtube.com/@jraofficial/search?query={n}+{y}".format(n=race_data["name"], y=race_data["start_at"].year)
+        if race_data["start_at"].year >= 2023:
+            if ((type(race_data["start_at"]) == datetime.datetime and race_data["start_at"].date() < now.date())
+             or (type(race_data["start_at"]) == datetime.date and race_data["start_at"] < now.date())):
+                race_data["archive_url"] = "https://www.youtube.com/@jraofficial/search?query={n}+{y}".format(n=race_data["name"], y=race_data["start_at"].year)
         
         logging.info("### {d}: {name}".format(d=race_data["start_at"], name=race_data["detail"]))
         overseas_races.append(race_data)
