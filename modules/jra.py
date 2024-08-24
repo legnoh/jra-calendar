@@ -1,4 +1,4 @@
-import datetime,logging,requests,re,unicodedata,zoneinfo
+import datetime,logging,requests,re,unicodedata,urllib,zoneinfo
 import modules.bsclient as bsc
 
 BASE_URL="https://jra.jp"
@@ -76,7 +76,7 @@ def get_grade_races_by_month(year:int, month:int, max_link_point: datetime.datet
                     
                     # 過去のレースの場合はアーカイブURLを追加する
                     if race_data["start_at"].date() < now.date():
-                        race_data["archive_url"] = "https://www.youtube.com/@jraofficial/search?query={n}+{y}".format(n=race_data["name"], y=race_data["start_at"].year)
+                        race_data["archive_url"] = "https://www.youtube.com/@jraofficial/search?query=" + urllib.parse.quote(race_data["name"] + " " + str(race_data["start_at"].year))
 
                     # 発走時刻が取得できた場合は5分間、それ以外は全日イベントとして定義
                     if race_data["start_at"].hour != 0:

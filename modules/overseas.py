@@ -1,4 +1,4 @@
-import datetime,logging,requests,re,zoneinfo
+import datetime,logging,requests,re,urllib,zoneinfo
 import modules.bsclient as bsc
 import locale
 
@@ -164,7 +164,7 @@ def get_grade_races_by_year(year:int) -> list:
         if race_data["start_at"].year >= 2023:
             if ((type(race_data["start_at"]) == datetime.datetime and race_data["start_at"].date() < now.date())
              or (type(race_data["start_at"]) == datetime.date and race_data["start_at"] < now.date())):
-                race_data["archive_url"] = "https://www.youtube.com/@jraofficial/search?query={n}+{y}".format(n=race_data["name"], y=race_data["start_at"].year)
+                race_data["archive_url"] = "https://www.youtube.com/@jraofficial/search?query=" + urllib.parse.quote(race_data["name"] + " " + str(race_data["start_at"].year))
         
         logging.info("### {d}: {name}".format(d=race_data["start_at"], name=race_data["detail"]))
         overseas_races.append(race_data)
