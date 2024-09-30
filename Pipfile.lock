@@ -132,12 +132,12 @@
         },
         "icalendar": {
             "hashes": [
-                "sha256:5ded5415e2e1edef5ab230024a75878a7a81d518a3b1ae4f34bf20b173c84dc2",
-                "sha256:92799fde8cce0b61daa8383593836d1e19136e504fa1671f471f98be9b029706"
+                "sha256:567e718551d800362db04ca09777295336e1803f6fc6bc0a7a5e258917fa8ed0",
+                "sha256:7ddf60d343f3c1f716de9b62f6e80ffd95d03cab62464894a0539feab7b5c76e"
             ],
             "index": "pypi",
-            "markers": "python_version >= '3.7'",
-            "version": "==5.0.13"
+            "markers": "python_version >= '3.8'",
+            "version": "==6.0.0"
         },
         "idna": {
             "hashes": [
@@ -186,6 +186,14 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==2.5"
+        },
+        "tzdata": {
+            "hashes": [
+                "sha256:7d85cc416e9382e69095b7bdf4afd9e3880418a2413feec7069d533d6b4e31cc",
+                "sha256:a48093786cdcde33cad18c2555e8532f34422074448fbc874186f0abd79565cd"
+            ],
+            "markers": "python_version >= '2'",
+            "version": "==2024.2"
         },
         "urllib3": {
             "extras": [
