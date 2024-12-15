@@ -26,15 +26,12 @@ jobs:
       run: |
         sudo locale-gen ja_JP.UTF-8
         sudo update-locale LANG=ja_JP.UTF-8
-    - name: Start XVFB
-      run: Xvfb :99 &
     - name: Execute
       run: pipenv run main
       env:
-        DISPLAY: :99
         TZ: ${{ secrets.TZ }}
     - name: Deploy to Netlify
-      uses: nwtgck/actions-netlify@v2.1
+      uses: nwtgck/actions-netlify@v3.0
       with:
         publish-dir: './dist'
         production-deploy: true

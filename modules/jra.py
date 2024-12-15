@@ -1,40 +1,39 @@
-from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.common.by import By
-import datetime,logging,requests,re,zoneinfo
+import datetime,logging,requests,re,unicodedata,urllib,zoneinfo
+import modules.bsclient as bsc
 
-BASE_URL="https://jra.jp/keiba"
-COMMON_URL="{u}/common".format(u=BASE_URL)
+BASE_URL="https://jra.jp"
+KEIBA_URL=f"{BASE_URL}/keiba"
+COMMON_URL=f"{KEIBA_URL}/common"
 ORIGIN_TZ=zoneinfo.ZoneInfo("Asia/Tokyo")
 
-def get_calendar_active_years(driver) -> list[str]:
-    driver.get("{u}/calendar/".format(u=BASE_URL))
-    years_li = driver.find_elements(By.CSS_SELECTOR, "div#mainBody > div.cal_year > ul > li")
+def get_calendar_active_years() -> list[str]:
+    year = 2020 # 2019年以前はJRA側のテーブル形式が古いため未対応
+    last_crop = False
     years = []
-    for year_li in years_li:
-        years.append(int(year_li.text))
-    years.sort()
+    while last_crop == False:
+        if requests.get(f"{KEIBA_URL}/calendar{year}/active.json").status_code == 200:
+            years.append(year)
+            year += 1
+        else:
+            last_crop = True
     return years
 
 def get_max_link_point() -> datetime:
     try:
-        response = requests.get(
-            url="{u}/calendar/json/setting.json".format(u=COMMON_URL),
-        )
+        response = requests.get(f"{COMMON_URL}/calendar/json/setting.json")
         json = response.json()
         max_link_point = datetime.datetime.strptime(json[0]['link-point'] + " +0900", '%Y/%m/%d %z')
         return max_link_point
-    except requests.exceptions.RequestException:
-        logging.warn('HTTP Request failed')
+    except requests.exceptions.RequestException as e:
+        logging.warn(f'get_max_link_point failed: {e}')
         return None
 
-def get_grade_races_by_month(driver:WebDriver, year:int, month:int, max_link_point: datetime.datetime) -> list:
+def get_grade_races_by_month(year:int, month:int, max_link_point: datetime.datetime) -> list:
     grade_races = []
     now = datetime.datetime.now(ORIGIN_TZ)
 
     try:
-        response = requests.get(
-            url="{u}/calendar/json/{y}{m:0>2}.json".format(u=COMMON_URL, y=year, m=month),
-        )
+        response = requests.get(f"{COMMON_URL}/calendar/json/{year}{month:0>2}.json")
         race_raw = response.json()[0]
         race_dates = race_raw['data']
 
@@ -49,9 +48,9 @@ def get_grade_races_by_month(driver:WebDriver, year:int, month:int, max_link_poi
                         "festival_day": None,
                         "race_number": None,
                         "name": race['name'],
-                        "detail": race['detail'],
+                        "detail": unicodedata.normalize('NFKC', race['detail']),
                         "grade": race['grade'],
-                        "start_at": datetime.datetime(year=year, month=month, day=race_day, tzinfo=ORIGIN_TZ),
+                        "start_at": datetime.datetime(year, month, race_day, tzinfo=ORIGIN_TZ),
                         "end_at": None,
                         "special_url": None,
                         "netkeiba_url": None,
@@ -60,7 +59,6 @@ def get_grade_races_by_month(driver:WebDriver, year:int, month:int, max_link_poi
 
                     if race_data['start_at'] <= max_link_point:
                         more_info = get_race_more_info(
-                            driver,
                             race_data['detail'],
                             race_data['start_at'])
                         race_data['start_at'] = more_info['start_at']
@@ -78,7 +76,7 @@ def get_grade_races_by_month(driver:WebDriver, year:int, month:int, max_link_poi
                     
                     # 過去のレースの場合はアーカイブURLを追加する
                     if race_data["start_at"].date() < now.date():
-                        race_data["archive_url"] = "https://www.youtube.com/@jraofficial/search?query={n}+{y}".format(n=race_data["name"], y=race_data["start_at"].year)
+                        race_data["archive_url"] = "https://www.youtube.com/@jraofficial/search?query=" + urllib.parse.quote(race_data["name"] + " " + str(race_data["start_at"].year))
 
                     # 発走時刻が取得できた場合は5分間、それ以外は全日イベントとして定義
                     if race_data["start_at"].hour != 0:
@@ -96,45 +94,41 @@ def get_grade_races_by_month(driver:WebDriver, year:int, month:int, max_link_poi
         logging.warn('HTTP Request failed')
         return None
 
-def get_race_more_info(driver:WebDriver, name: str, date: datetime.datetime) -> dict:
+def get_race_more_info(name: str, date: datetime.datetime) -> dict:
 
-    driver.get("{u}/calendar{y}/{y}/{m}/{m:0>2}{d:0>2}.html".format(u=BASE_URL, y=date.year,m=date.month,d=date.day))
-    festivals = driver.find_elements(By.CSS_SELECTOR, "div#program_list > div.grid > div.cell > table")
-
-    driver.implicitly_wait(0.1)
+    soup = bsc.get_soup(f"{KEIBA_URL}/calendar{date.year}/{date.year}/{date.month}/{date.month:0>2}{date.day:0>2}.html")
+    festivals = soup.select("div#program_list > div.grid > div.cell > table")
 
     for festival in festivals:
-        races = festival.find_elements(By.CSS_SELECTOR, "tbody > tr")
+        races = festival.select("tbody > tr")
         for race in races:
 
             # 特別競走・重賞以外は無視
-            if len(race.find_elements(By.CSS_SELECTOR,"td.name > p.stakes")) > 0:
+            if len(race.select("td.name > p.stakes")) > 0:
 
-                # 要素の文字列を全て結合
-                description = race.find_element(By.CSS_SELECTOR,"td.name").text.replace("\n", "")
+                # 要素の文字列を全て結合し、スペースを消し、半角全角を揃える
+                description = unicodedata.normalize('NFKC', race.select_one("td.name").text.replace(" ", "").replace("\n", ""))
 
                 # その中にレース名が含まれていたら情報を収集
-                if name in description :
+                if name in description:
 
                     # レース番号(1~12)
-                    race_number = int(race.find_element(By.CSS_SELECTOR, "th.num").text.replace("レース", ""))
+                    race_number = int(race.select_one("th.num").text.replace("レース", ""))
 
                     # レース発走時刻
-                    race_time_raw = race.find_element(By.CSS_SELECTOR, "td.time").text
+                    race_time_raw = race.select_one("td.time").text
                     race_time_m = re.match(r"([0-9]+)時([0-9]+)分", race_time_raw)
 
                     # 競馬開催情報(回数と日数)
-                    festival_caption = festival.find_element(By.CSS_SELECTOR, "caption").text
+                    festival_caption = festival.select_one("caption").text.strip()
                     festival_caption_m = re.match(r"([0-9]+)回(.*)([0-9]+)日", festival_caption)
                     festival_time = int(festival_caption_m.group(1))
                     festival_day = int(festival_caption_m.group(3))
 
                     # 公式URL
                     jra_url = None
-                    if len(race.find_elements(By.CSS_SELECTOR,"td.name > p.stakes > a")) > 0:
-                        jra_url = race.find_element(By.CSS_SELECTOR,"td.name > p.stakes > a").get_attribute('href')
-                    
-                    driver.implicitly_wait(10)
+                    if len(race.select("td.name > p.stakes > a")) > 0:
+                        jra_url = BASE_URL + race.select_one("td.name > p.stakes > a").get('href')
 
                     return {
                         'festival_time': festival_time,
@@ -150,8 +144,8 @@ def get_race_more_info(driver:WebDriver, name: str, date: datetime.datetime) -> 
                         ),
                         'jra_url': jra_url,
                     }
-    driver.implicitly_wait(10)
-    return date
+    logging.error(f"no festival data found: {name} / {date}")
+    return {}
 
 def get_netkeiba_url(date: datetime.datetime, location: str, time:int, day:int, race_number: int) -> str:
 

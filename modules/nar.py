@@ -1,9 +1,9 @@
-from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webdriver import WebDriver
-import datetime,locale,logging,unicodedata,zoneinfo
+import datetime,locale,logging,unicodedata,urllib,zoneinfo
+import modules.bsclient as bsc
 
 NETKEIBA_SCHEDULE_URL = "https://nar.netkeiba.com/top/schedule.html"
-KEIBAGO_DIRTRACE_ROOT_URL = "https://www.keiba.go.jp/dirtgraderace"
+KEIBAGO_ROOT_URL = "https://www.keiba.go.jp"
+KEIBAGO_DIRTRACE_ROOT_URL = f"{KEIBAGO_ROOT_URL}/dirtgraderace"
 KEIBAGO_RACELIST_URL = "https://www.keiba.go.jp/KeibaWeb/TodayRaceInfo/RaceList"
 KEIBAGO_BABA_CODES = {
     "帯広": 3,
@@ -43,39 +43,38 @@ NETKEIBA_LOCATE_IDS = {
 
 ORIGIN_TZ = zoneinfo.ZoneInfo("Asia/Tokyo")
 
-def get_calendar_active_years(driver:WebDriver) -> list[str]:
+def get_calendar_active_years() -> list[int]:
 
-    years:list[str] = []
-    driver.get(f"{KEIBAGO_DIRTRACE_ROOT_URL}/")
-    links = driver.find_elements(By.CSS_SELECTOR, "ul.global-nav__list > li > a")
+    years:list[int] = []
+    soup = bsc.get_soup(f"{KEIBAGO_DIRTRACE_ROOT_URL}/common/html/common_header.html")
+    links = soup.select("ul.global-nav__list > li > a")
     for link in links:
-        if link.accessible_name == "レース一覧":
-            href = link.get_attribute("href")
-            driver.get(href)
-            years_a = driver.find_elements(By.CSS_SELECTOR, "div.racelist_dd > ul.dd_menu > li > a")
+        if link.text == "レース一覧":
+            href = link.get("href")
+            soup = bsc.get_soup(f"{KEIBAGO_ROOT_URL}{href}")
+            years_a = soup.select("div.racelist_dd > ul.dd_menu > li > a")
             for year_a in years_a:
-                years.append(year_a.get_attribute('text').replace('年', ''))
+                years.append(int(year_a.text.replace('年', '')))
+            years.reverse()
             return years
     return years
 
-def get_grade_races_by_year(driver:WebDriver, year:int) -> list:
+def get_grade_races_by_year(year:int) -> list:
     locale.setlocale(locale.LC_TIME, 'ja_JP.UTF-8')
     now = datetime.datetime.now(ORIGIN_TZ)
     grade_races = []
 
-    driver.get(f"{KEIBAGO_DIRTRACE_ROOT_URL}/{year}/racelist/index.html")
-    races = driver.find_elements(By.CSS_SELECTOR, "div#list > div.month > ul > li.js-item")
+    soup = bsc.get_soup(f"{KEIBAGO_DIRTRACE_ROOT_URL}/{year}/racelist/index.html")
+    races = soup.select("div#list > div.month > ul > li.js-item")
 
     for race in races:
-        driver.implicitly_wait(0)
-        if len(race.find_elements(By.CSS_SELECTOR, "a")) > 0:
-            race = race.find_elements(By.CSS_SELECTOR, "a")[0]
-            special_url = race.get_attribute('href').replace("racecard", "analysis")
+        if len(race.select("a")) > 0:
+            race = race.select("a")[0]
+            special_url = KEIBAGO_ROOT_URL + race.get('href').replace("racecard", "analysis")
         else:
             special_url = None
-        driver.implicitly_wait(10)
 
-        meta = race.find_elements(By.CSS_SELECTOR, "p")
+        meta = race.select("p")
         location = meta[1].text.split(' ')[0]
         meta_start_at = "{y}年{mdw}".format(y=year,mdw=meta[0].text.replace("祝", "").replace("振", ""))
 
@@ -83,9 +82,9 @@ def get_grade_races_by_year(driver:WebDriver, year:int) -> list:
             race_data = {
                 "festival_location": location,
                 "race_number": None,
-                "name": race.find_element(By.CSS_SELECTOR, "h4").text.replace("ステークス", "S").replace("カップ", "C"),
-                "detail": race.find_element(By.CSS_SELECTOR, "h4").text,
-                "grade": race.find_element(By.CSS_SELECTOR, "h4").get_attribute("class").capitalize(),
+                "name": race.select_one("h4").text.replace("ステークス", "S").replace("カップ", "C"),
+                "detail": race.select_one("h4").text,
+                "grade": race.select_one("h4").get("class")[0].capitalize(),
                 "start_at": datetime.datetime.strptime(meta_start_at, "%Y年%m月%d日(%a)").replace(tzinfo=ORIGIN_TZ),
                 "end_at": None,
                 "special_url": special_url,
@@ -97,11 +96,11 @@ def get_grade_races_by_year(driver:WebDriver, year:int) -> list:
     for race_data in grade_races:
 
         if (race_data["start_at"] - now).days < 5:
-            race_data["start_at"], race_data["race_number"] = get_start_time_and_race_number(driver, race_data['detail'], race_data['start_at'], race_data['festival_location'])
+            race_data["start_at"], race_data["race_number"] = get_start_time_and_race_number(race_data['detail'], race_data['start_at'], race_data['festival_location'])
 
         # 過去のレースの場合はアーカイブURLを追加する
         if race_data["start_at"].date() < now.date():
-            race_data["archive_url"] = "https://www.youtube.com/@nar_keiba/search?query={n}+{y}".format(n=race_data["name"], y=race_data["start_at"].year)
+            race_data["archive_url"] = "https://www.youtube.com/@nar_keiba/search?query=" + urllib.parse.quote(race_data["name"] + " " + str(race_data["start_at"].year))
 
         # 発走時刻が取得できた場合は5分間、それ以外は全日イベントとして定義
         if race_data["start_at"].hour != 0:
@@ -117,9 +116,9 @@ def get_grade_races_by_year(driver:WebDriver, year:int) -> list:
         logging.info("### {d}: {name}".format(d=race_data["start_at"], name=race_data["detail"]))
     return grade_races
 
-def get_start_time_and_race_number(driver:WebDriver, name:str, date:datetime.datetime, location:str):
+def get_start_time_and_race_number(name:str, date:datetime.datetime, location:str):
 
-    driver.get("{u}?k_raceDate={y}%2f{m}%2f{d}&k_babaCode={b}".format(
+    soup = bsc.get_soup("{u}?k_raceDate={y}%2f{m}%2f{d}&k_babaCode={b}".format(
         u=KEIBAGO_RACELIST_URL,
         b=KEIBAGO_BABA_CODES[location],
         y=date.strftime("%Y"),
@@ -127,10 +126,10 @@ def get_start_time_and_race_number(driver:WebDriver, name:str, date:datetime.dat
         d=date.strftime("%d"),
     ))
 
-    races = driver.find_elements(By.CSS_SELECTOR, "section.raceTable > table > tbody > tr.data")
+    races = soup.select("section.raceTable > table > tbody > tr.data")
 
     for race in races:
-        race_data = race.find_elements(By.CSS_SELECTOR, "td")
+        race_data = race.select("td")
         if name in unicodedata.normalize('NFKC', race_data[4].text):
             hour_str, minute_str = race_data[1].text.split(':')
             date = date.replace(hour=int(hour_str), minute=int(minute_str))
