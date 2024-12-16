@@ -12,7 +12,7 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/1813c971-2e32-4d0f-844b-e8e9a8a95c67/deploy-status)](https://app.netlify.com/sites/jra-calendar/deploys)
 
-![sample](https://github.com/legnoh/jra-calendar/assets/706834/55e9e1ad-9cef-487e-b50e-177baac820a9)
+<img width="600" alt="sample" src="https://github.com/user-attachments/assets/c672a941-a698-4544-b6ba-9cd288d9fe03" />
 
 - 中央競馬とダートグレード競走と日本馬参加の海外競走の開催予定カレンダーです。
   - 外部カレンダーなどで登録することで、自動的にカレンダーを読み込めます。
