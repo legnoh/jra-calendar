@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
     ## get all active year
     logging.info("## Get all active year")
-    years:list[str] = overseas.get_calendar_active_years()
+    years:list[int] = overseas.get_calendar_active_years()
 
     ## get all overseas grade race in all active year
     logging.info("## Get all Overseas grade race in all active year")

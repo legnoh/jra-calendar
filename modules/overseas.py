@@ -1,4 +1,4 @@
-import datetime,logging,requests,re,urllib,zoneinfo
+import datetime,logging,re,urllib,zoneinfo
 import modules.bsclient as bsc
 import locale
 
@@ -104,9 +104,16 @@ NETKEIBA_LOCATE_IDS = {
 
 def get_calendar_active_years() -> list[int]:
 
-    years = [datetime.datetime.now().year]
-
+    years = []
     soup = bsc.get_soup(f"{KEIBA_URL}/overseas/racelist/")
+
+    # 年が変わったばかりの時はページが去年から更新されていないことがあるので、今の最新年をページ上から取得する
+    this_year_raw = soup.select_one("div#cal_block > div.race_list > div > table.main_race > caption > div.header > div.content > p").text
+    if this_year_raw != None:
+        this_year = int(this_year_raw.removesuffix("年 発売レース"))
+        years.append(this_year)
+
+    # それ以前の年はページ下のアーカイブ部分から取得する
     years_a = soup.select("div#backnumber_list > ul > li > a")
     for year_a in years_a:
         years.append(int(year_a.text.replace("年", "")))
@@ -120,6 +127,9 @@ def get_grade_races_by_year(year:int) -> list:
     now = datetime.datetime.now(ORIGIN_TZ)
 
     soup = bsc.get_soup(f"https://www.jra.go.jp/keiba/overseas/racelist/{year}.html")
+    if soup == None:
+        logging.warning(f"failed to get {year}'s grade races")
+        return []
     tr_races = soup.select("div.race_list > div > table > tbody > tr")
     for tr_race in tr_races:
 
@@ -176,6 +186,9 @@ def get_start_time(url:str, year:int) -> datetime:
     start_time = None
 
     soup = bsc.get_soup(url)
+    if soup == None:
+        logging.warning(f"failed to get start time: {url}")
+        return None
     time_datas = soup.select("div.time_area_line > div.main > div.time_area > div.unit")
     for time_data in time_datas:
         if time_data.select_one("div.cap").text == "発走予定時刻":
