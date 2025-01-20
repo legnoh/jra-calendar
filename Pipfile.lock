@@ -132,12 +132,12 @@
         },
         "icalendar": {
             "hashes": [
-                "sha256:43c2db8632959d634f4e48f6e6131e706bf2cdddad488cf0b72fda079b796bad",
-                "sha256:46c09b774a6e6948495dafcb166dc15135c8259d0ae25491f154cbc822714b69"
+                "sha256:2c44355a8f006de5ae73fa3f022a1cbe2a0de6b1607ce8879739eb887c4f3471",
+                "sha256:accf3a4be9a1f89bad00e0bf14103b02cd9b02dcb9b4258eb717f39d24cf58e9"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.8'",
-            "version": "==6.1.0"
+            "version": "==6.1.1"
         },
         "idna": {
             "hashes": [
@@ -173,11 +173,11 @@
         },
         "six": {
             "hashes": [
-                "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926",
-                "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"
+                "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274",
+                "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81"
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
-            "version": "==1.16.0"
+            "version": "==1.17.0"
         },
         "soupsieve": {
             "hashes": [
