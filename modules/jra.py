@@ -87,7 +87,7 @@ def get_grade_races_by_month(year:int, month:int, max_link_point: datetime.datet
                         race_data["end_at"] = race_data["end_at"].date()
 
                     grade_races.append(race_data)
-                    logging.info("### {d}: {name}".format(d=race_data["start_at"], name=race_data["detail"]))
+                    logging.info(f"### {race_data["start_at"]}: {race_data["detail"]}")
         return grade_races
 
     except requests.exceptions.RequestException:

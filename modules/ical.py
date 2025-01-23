@@ -2,7 +2,7 @@ from icalendar import Event
 import base64,datetime,zoneinfo
 
 BASE_URL="https://jra.jp/keiba"
-COMMON_URL="{u}/common".format(u=BASE_URL)
+COMMON_URL=f"{BASE_URL}/common"
 ORIGIN_TZ=zoneinfo.ZoneInfo("Asia/Tokyo")
 
 # 各競馬場のgeoの位置は徒歩で行った際の合理的な入場門の位置にする
@@ -471,7 +471,7 @@ def get_x_apple_structured_location(race_course: str):
     infoset = LOCATIONS_INFO[race_course]
     return {
         'name': "X-APPLE-STRUCTURED-LOCATION",
-        'value': "geo:{g}".format(g=infoset['geo']),
+        'value': f"geo:{infoset['geo']}",
         'parameters': {
             "VALUE": "URI",
             'X-APPLE-REFERENCEFRAME': "1",
@@ -485,15 +485,12 @@ def create_event_block(race: dict):
     now = datetime.datetime.now(tz=ORIGIN_TZ)
 
     # UIDを作る
-    raw_uid = "{s}{t}".format(s=race['start_at'],t=race['name'])
+    raw_uid = f"{race['start_at']}{race['name']}"
     uid_enc = raw_uid.encode('utf-8')
     uid = base64.b64encode(uid_enc)
 
     # タイトルを作る（G1/G2/G3の部分はローマ数字に書き換える）
-    summary = "{n}({g})".format(
-        n=race['name'],
-        g=race['grade'].replace("1","Ⅰ").replace("2","Ⅱ").replace("3","Ⅲ")
-    )
+    summary = f"{race['name']}({race['grade'].replace("1","Ⅰ").replace("2","Ⅱ").replace("3","Ⅲ")})"
 
     # 競馬場の情報を取得する(X-APPLE-STRUCTURED_LOCATIONの形式に合わせる)
     x_apple_structured_location = get_x_apple_structured_location(race["festival_location"])
@@ -505,25 +502,25 @@ def create_event_block(race: dict):
     if "flag" in locateinfo:
         summary = locateinfo["flag"] + summary
     if race["special_url"] != None:
-        urls.append("分析: {u}".format(u=race["special_url"]))
+        urls.append(f"分析: {race["special_url"]}")
     if race["netkeiba_url"] != None:
         if type(race["end_at"]) is datetime.date:
-            urls.append("出走: {u}".format(u=race["netkeiba_url"]))
+            urls.append(f"出走: {race["netkeiba_url"]}")
         elif type(race["end_at"]) is datetime.datetime:
             if now < race["end_at"]:
-                urls.append("出走: {u}".format(u=race["netkeiba_url"]))
+                urls.append(f"出走: {race["netkeiba_url"]}")
             else:
-                urls.append("結果: {u}".format(u=race["netkeiba_url"]))
+                urls.append(f"結果: {race["netkeiba_url"]}")
     if race["archive_url"] != None:
-        urls.append("映像: {u}".format(u=race["archive_url"]))
+        urls.append(f"映像: {race["archive_url"]}")
     if locateinfo["admission"] != None:
-        urls.append("入場: {u}".format(u=locateinfo["admission"]))
+        urls.append(f"入場: {locateinfo["admission"]}")
     if locateinfo["reservation"] != None:
-        urls.append("予約: {u}".format(u=locateinfo["reservation"]))
+        urls.append(f"予約: {locateinfo["reservation"]}")
     if locateinfo["betting"] != None:
-        urls.append("投票: {u}".format(u=locateinfo["betting"]))
+        urls.append(f"投票: {locateinfo["betting"]}")
     if locateinfo["live"] != None:
-        urls.append("LIVE: {u}".format(u=locateinfo["live"]))
+        urls.append(f"LIVE: {locateinfo["live"]}")
     description = "\n".join(urls)
 
     event = Event()
@@ -532,10 +529,7 @@ def create_event_block(race: dict):
     event.add('DESCRIPTION', description)
     event.add('DTSTART', race["start_at"])
     event.add('DTEND', race["end_at"])
-    event.add('LOCATION', "{t}\n{a}".format(
-        t=x_apple_structured_location['parameters']['X-TITLE'],
-        a=x_apple_structured_location['parameters']['X-ADDRESS']
-    )),
+    event.add('LOCATION', f"{x_apple_structured_location['parameters']['X-TITLE']}\n{x_apple_structured_location['parameters']['X-ADDRESS']}"),
     event.add(**x_apple_structured_location)
     event.add('TRANSP', 'TRANSPARENT')
     if race['netkeiba_url'] != None:

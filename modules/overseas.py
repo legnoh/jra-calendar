@@ -176,7 +176,7 @@ def get_grade_races_by_year(year:int) -> list:
              or (type(race_data["start_at"]) == datetime.date and race_data["start_at"] < now.date())):
                 race_data["archive_url"] = "https://www.youtube.com/@jraofficial/search?query=" + urllib.parse.quote(race_data["name"] + " " + str(race_data["start_at"].year))
         
-        logging.info("### {d}: {name}".format(d=race_data["start_at"], name=race_data["detail"]))
+        logging.info(f"### {race_data["start_at"]}: {race_data["detail"]}")
         overseas_races.append(race_data)
     return overseas_races
 

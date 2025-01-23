@@ -11,23 +11,25 @@ jobs:
     steps:
     - name: Check Out Repo 
       uses: actions/checkout@v4
-    - name: Install pipenv
-      run: pipx install pipenv
-    - name: Setup Python
-      uses: actions/setup-python@v5
+
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v5
       with:
-        python-version: '3.x'
-        cache: pipenv
+        enable-cache: true
+
     - name: Install dependencies
-      run: pipenv install
+      run: uv sync --frozen
+
     - name: set locale
       run: |
         sudo locale-gen ja_JP.UTF-8
         sudo update-locale LANG=ja_JP.UTF-8
+
     - name: Execute
-      run: pipenv run main
+      run: uv run main.py
       env:
         TZ: ${{ secrets.TZ }}
+
     - name: Deploy to Netlify
       uses: nwtgck/actions-netlify@v3.0
       with:

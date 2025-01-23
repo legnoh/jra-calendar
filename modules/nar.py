@@ -76,7 +76,7 @@ def get_grade_races_by_year(year:int) -> list:
 
         meta = race.select("p")
         location = meta[1].text.split(' ')[0]
-        meta_start_at = "{y}年{mdw}".format(y=year,mdw=meta[0].text.replace("祝", "").replace("振", ""))
+        meta_start_at = f"{year}年{meta[0].text.replace("祝", "").replace("振", "")}"
 
         if location in KEIBAGO_BABA_CODES.keys():
             race_data = {
@@ -113,7 +113,7 @@ def get_grade_races_by_year(year:int) -> list:
         if race_data["race_number"] != None:
             race_data["netkeiba_url"] = get_netkeiba_url(race_data["start_at"], race_data["festival_location"], race_data["race_number"], now)
 
-        logging.info("### {d}: {name}".format(d=race_data["start_at"], name=race_data["detail"]))
+        logging.info(f"### {race_data["start_at"]}: {race_data["detail"]}")
     return grade_races
 
 def get_start_time_and_race_number(name:str, date:datetime.datetime, location:str):
