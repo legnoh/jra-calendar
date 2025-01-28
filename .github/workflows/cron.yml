@@ -34,13 +34,18 @@ jobs:
       run: uv run main.py
       env:
         TZ: Asia/Tokyo
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist
+        path: dist
 
     - name: Deploy to Netlify
       uses: nwtgck/actions-netlify@v3.0
       with:
         publish-dir: './dist'
         production-deploy: true
-        enable-commit-comment: false
         github-token: ${{ github.token }}
       env:
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
