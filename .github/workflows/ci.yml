@@ -1,8 +1,8 @@
 name: CI
 
 on:
-  pull_request_target:
-    branches: ["main"]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -28,14 +28,4 @@ jobs:
     - name: Execute
       run: uv run main.py
       env:
-        TZ: ${{ secrets.TZ }}
-
-    - name: Deploy to Netlify
-      uses: nwtgck/actions-netlify@v3.0
-      with:
-        publish-dir: './dist'
-        production-deploy: false
-        enable-commit-comment: false
-      env:
-        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        TZ: "Asia/Tokyo"
