@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   build:
@@ -36,6 +37,12 @@ jobs:
       run: uv run main.py
       env:
         TZ: Asia/Tokyo
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist
+        path: dist
 
     - name: Deploy to Netlify
       if: github.event_name != 'pull_request_target'
