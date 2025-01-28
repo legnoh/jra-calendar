@@ -1,15 +1,22 @@
 name: CI
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Check Out Repo 
+    - name: Checkout repository
       uses: actions/checkout@v4
 
     - name: Setup uv
@@ -28,4 +35,15 @@ jobs:
     - name: Execute
       run: uv run main.py
       env:
-        TZ: "Asia/Tokyo"
+        TZ: Asia/Tokyo
+
+    - name: Deploy to Netlify
+      if: github.event_name != 'pull_request_target'
+      uses: nwtgck/actions-netlify@v3.0
+      with:
+        publish-dir: './dist'
+        production-deploy: true
+        github-token: ${{ github.token }}
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
