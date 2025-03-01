@@ -490,7 +490,7 @@ def create_event_block(race: dict):
     uid = base64.b64encode(uid_enc)
 
     # タイトルを作る（グレード表記の部分は絵文字に書き換える）
-    summary = f"{race['grade'].replace("G1","🥇").replace("G2","🥈").replace("G3","🥉").replace("Jpn1","🥇").replace("Jpn2","🥈").replace("Jpn3","🥉")}{race['name']}"
+    summary = f"{race['grade'].replace("J・","").replace("G1","🥇").replace("G2","🥈").replace("G3","🥉").replace("Jpn1","🥇").replace("Jpn2","🥈").replace("Jpn3","🥉")}{race['name']}"
 
     # 競馬場の情報を取得する(X-APPLE-STRUCTURED_LOCATIONの形式に合わせる)
     x_apple_structured_location = get_x_apple_structured_location(race["festival_location"])
