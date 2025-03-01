@@ -1,5 +1,6 @@
-import datetime,locale,logging,unicodedata,urllib,zoneinfo
+import datetime,locale,logging,re,unicodedata,urllib,zoneinfo
 import modules.bsclient as bsc
+import requests
 
 NETKEIBA_SCHEDULE_URL = "https://nar.netkeiba.com/top/schedule.html"
 KEIBAGO_ROOT_URL = "https://www.keiba.go.jp"
@@ -46,17 +47,11 @@ ORIGIN_TZ = zoneinfo.ZoneInfo("Asia/Tokyo")
 def get_calendar_active_years() -> list[int]:
 
     years:list[int] = []
-    soup = bsc.get_soup(f"{KEIBAGO_DIRTRACE_ROOT_URL}/common/html/common_header.html")
-    links = soup.select("ul.global-nav__list > li > a")
-    for link in links:
-        if link.text == "レース一覧":
-            href = link.get("href")
-            soup = bsc.get_soup(f"{KEIBAGO_ROOT_URL}{href}")
-            years_a = soup.select("div.racelist_dd > ul.dd_menu > li > a")
-            for year_a in years_a:
-                years.append(int(year_a.text.replace('年', '')))
-            years.reverse()
-            return years
+    resp = requests.get(f"{KEIBAGO_DIRTRACE_ROOT_URL}/common/js/racelist.js")
+    if resp.status_code != 200:
+        logging.warning("failed to get race years")
+        return None
+    years = sorted(set(re.findall(r"20\d{2}", resp.text)))
     return years
 
 def get_grade_races_by_year(year:int) -> list:

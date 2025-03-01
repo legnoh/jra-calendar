@@ -25,7 +25,7 @@ def get_max_link_point() -> datetime:
         max_link_point = datetime.datetime.strptime(json[0]['link-point'] + " +0900", '%Y/%m/%d %z')
         return max_link_point
     except requests.exceptions.RequestException as e:
-        logging.warn(f'get_max_link_point failed: {e}')
+        logging.warning(f'get_max_link_point failed: {e}')
         return None
 
 def get_grade_races_by_month(year:int, month:int, max_link_point: datetime.datetime) -> list:
@@ -90,8 +90,8 @@ def get_grade_races_by_month(year:int, month:int, max_link_point: datetime.datet
                     logging.info(f"### {race_data["start_at"]}: {race_data["detail"]}")
         return grade_races
 
-    except requests.exceptions.RequestException:
-        logging.warn('HTTP Request failed')
+    except requests.exceptions.RequestException as e:
+        logging.warning(f"HTTP Request failed: {e}")
         return None
 
 def get_race_more_info(name: str, date: datetime.datetime) -> dict:
