@@ -61,19 +61,20 @@ def get_grade_races_by_month(year:int, month:int, max_link_point: datetime.datet
                         more_info = get_race_more_info(
                             race_data['detail'],
                             race_data['start_at'])
-                        race_data['start_at'] = more_info['start_at']
-                        race_data['special_url'] = more_info['jra_url']
-                        race_data['festival_time'] = more_info['festival_time']
-                        race_data['festival_day'] = more_info['festival_day']
-                        race_data['race_number'] = more_info['race_number']
-                        race_data['netkeiba_url'] = get_netkeiba_url(
-                            race_data['start_at'],
-                            race_data["festival_location"],
-                            race_data["festival_time"],
-                            race_data["festival_day"],
-                            race_data["race_number"]
-                        )
-                    
+                        if more_info != None:
+                            race_data['start_at'] = more_info['start_at']
+                            race_data['special_url'] = more_info['jra_url']
+                            race_data['festival_time'] = more_info['festival_time']
+                            race_data['festival_day'] = more_info['festival_day']
+                            race_data['race_number'] = more_info['race_number']
+                            race_data['netkeiba_url'] = get_netkeiba_url(
+                                race_data['start_at'],
+                                race_data["festival_location"],
+                                race_data["festival_time"],
+                                race_data["festival_day"],
+                                race_data["race_number"]
+                            )
+
                     # 過去のレースの場合はアーカイブURLを追加する
                     if race_data["start_at"].date() < now.date():
                         race_data["archive_url"] = "https://www.youtube.com/@jraofficial/search?query=" + urllib.parse.quote(race_data["name"] + " " + str(race_data["start_at"].year))
@@ -145,7 +146,7 @@ def get_race_more_info(name: str, date: datetime.datetime) -> dict:
                         'jra_url': jra_url,
                     }
     logging.error(f"no festival data found: {name} / {date}")
-    return {}
+    return None
 
 def get_netkeiba_url(date: datetime.datetime, location: str, time:int, day:int, race_number: int) -> str:
 
