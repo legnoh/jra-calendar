@@ -53,6 +53,7 @@ jobs:
         production-deploy: true
         github-token: ${{ github.token }}
         enable-commit-comment: false
+        enable-pull-request-comment: false
       env:
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
