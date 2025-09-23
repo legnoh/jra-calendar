@@ -1,6 +1,8 @@
-import datetime,logging,re,urllib,zoneinfo
+import logging,re,urllib,zoneinfo
 import modules.bsclient as bsc
 import locale
+from datetime import datetime, timedelta, date
+from zoneinfo import ZoneInfo
 
 BASE_URL="https://jra.jp"
 KEIBA_URL=f"{BASE_URL}/keiba"
@@ -124,7 +126,7 @@ def get_grade_races_by_year(year:int) -> list:
 
     locale.setlocale(locale.LC_TIME, 'ja_JP.UTF-8')
     overseas_races = []
-    now = datetime.datetime.now(ORIGIN_TZ)
+    now = datetime.now(ORIGIN_TZ)
 
     soup = bsc.get_soup(f"https://www.jra.go.jp/keiba/overseas/racelist/{year}.html")
     if soup == None:
@@ -144,7 +146,7 @@ def get_grade_races_by_year(year:int) -> list:
             "name": race_name_short,
             "detail": race_name,
             "grade": race_grade,
-            "start_at": datetime.datetime.strptime(re.sub('（.*）', '', race_datas[0].text).strip(), "%Y年%m月%d日").replace(tzinfo=ORIGIN_TZ),
+            "start_at": datetime.strptime(re.sub('（.*）', '', race_datas[0].text).strip(), "%Y年%m月%d日").replace(tzinfo=ORIGIN_TZ),
             "end_at": None,
             "special_url": None,
             "netkeiba_url": None,
@@ -162,18 +164,18 @@ def get_grade_races_by_year(year:int) -> list:
                 if start_time != None:
                     start_time_fixed = True
                     race_data["start_at"] = start_time
-                    race_data["end_at"] = start_time + datetime.timedelta(minutes=5)
+                    race_data["end_at"] = start_time + timedelta(minutes=5)
         
         # URLがなく、かつ発走時刻も取れなかった場合は全日イベントとして設定
         if not start_time_fixed:
-            race_data["end_at"] = race_data["start_at"] + datetime.timedelta(days=1)
+            race_data["end_at"] = race_data["start_at"] + timedelta(days=1)
             race_data["start_at"] = race_data["start_at"].date()
             race_data["end_at"] = race_data["end_at"].date()
 
         # 過去のレース、かつ2023年以降の場合はアーカイブURLを追加する
         if race_data["start_at"].year >= 2023:
-            if ((type(race_data["start_at"]) == datetime.datetime and race_data["start_at"].date() < now.date())
-             or (type(race_data["start_at"]) == datetime.date and race_data["start_at"] < now.date())):
+            if ((type(race_data["start_at"]) == datetime and race_data["start_at"].date() < now.date())
+             or (type(race_data["start_at"]) == date and race_data["start_at"] < now.date())):
                 race_data["archive_url"] = "https://www.youtube.com/@jraofficial/search?query=" + urllib.parse.quote(race_data["name"] + " " + str(race_data["start_at"].year))
         
         logging.info(f"### {race_data["start_at"]}: {race_data["detail"]}")
@@ -196,12 +198,12 @@ def get_start_time(url:str, year:int) -> datetime:
             if "午後" in time_raw:
                 is_pm = True
             time_raw = re.sub('（.*）|午前|午後', '', time_raw).strip()
-            start_time = datetime.datetime.strptime(time_raw, "%m月%d日%H時%M分").replace(year=year, tzinfo=ORIGIN_TZ)
+            start_time = parse_jp_over24(s=time_raw, year=year, tz=ORIGIN_TZ)
             if is_pm:
-                start_time += datetime.timedelta(hours=12)
+                start_time += timedelta(hours=12)
     return start_time
 
-def get_netkeiba_url(date:datetime.datetime, location:str, race_number:int, now:datetime.datetime):
+def get_netkeiba_url(date:datetime, location:str, race_number:int, now:datetime):
 
     # netkeibaのレースURLは現地時間を使っているので、現地時間に合わせた日付で発番する
     local_datetime = date.astimezone(NETKEIBA_LOCATE_IDS[location]["tz"])
@@ -214,3 +216,26 @@ def get_netkeiba_url(date:datetime.datetime, location:str, race_number:int, now:
         d=local_datetime.day,
         n=race_number
     )
+
+# 25時30分などの正規化されていない時間をパースする関数
+def parse_jp_over24(s: str, *, year: int | None = None, tz: ZoneInfo | None = None) -> datetime:
+    PAT = re.compile(r"\s*(\d{1,2})月(\d{1,2})日(\d{1,2})時(\d{1,2})分\s*")
+
+    m = PAT.fullmatch(s)
+    if not m:
+        raise ValueError("想定外の形式です: '9月13日25時30分' のように書いてください。")
+    mon, day, hour, minute = map(int, m.groups())
+
+    # 年が無いので補う（指定が無ければ現在の年）
+    now = datetime.now(tz) if tz else datetime.now()
+    year = year or now.year
+
+    # 24時以降を正規化して日繰り上げ
+    extra_days, hour_norm = divmod(hour, 24)
+
+    # strptime は 0–23 時しか許さないので、正規化後の文字列で使う
+    norm = f"{year:04d}-{mon:02d}-{day:02d} {hour_norm:02d}:{minute:02d}"
+    dt = datetime.strptime(norm, "%Y-%m-%d %H:%M")
+    dt += timedelta(days=extra_days)
+
+    return dt.replace(tzinfo=tz) if tz else dt
