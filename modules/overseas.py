@@ -142,7 +142,7 @@ def get_grade_races_by_year(year:int) -> list:
         race_name_short = race_name.replace("ステークス", "S").replace("カップ", "C")
         race_grade = race_detail.group(2)
         race_data = {
-            "festival_location": race_datas[1].text,
+            "festival_location": race_datas[1].text.strip(),
             "name": race_name_short,
             "detail": race_name,
             "grade": race_grade,
