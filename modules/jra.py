@@ -44,7 +44,7 @@ def get_grade_races_by_month(year:int, month:int, max_link_point: datetime.datet
 
                     race_data = {
                         "festival_time": None,
-                        "festival_location": re.sub(r"([0-9]+)回(.*)", "\\2", date['info'][0]['race'][int(race['pos'])-1]['name']),
+                        "festival_location": re.sub(r"([0-9]+)回(.*)", "\\2", date['info'][0]['race'][int(race['pos'])-1]['name']).strip(),
                         "festival_day": None,
                         "race_number": None,
                         "name": race['name'],

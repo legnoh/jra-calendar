@@ -70,7 +70,7 @@ def get_grade_races_by_year(year:int) -> list:
             special_url = None
 
         meta = race.select("p")
-        location = meta[1].text.split(' ')[0]
+        location = meta[1].text.split(' ')[0].strip()
         meta_start_at = f"{year}年{meta[0].text.replace("祝", "").replace("振", "")}"
 
         if location in KEIBAGO_BABA_CODES.keys():
