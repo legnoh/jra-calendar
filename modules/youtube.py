@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 import yt_dlp
 import logging
 import zoneinfo
