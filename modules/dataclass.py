@@ -92,4 +92,5 @@ class GradeRace:
     race_number: Optional[int] = None
     special_url: Optional[str] = None
     netkeiba_url: Optional[str] = None
+    live_url: Optional[str] = None
     archive_url: Optional[str] = None

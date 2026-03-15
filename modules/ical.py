@@ -59,8 +59,8 @@ def create_event_block(race: GradeRace):
         urls.append(f"予約: {locateinfo.reservation}")
     if locateinfo.betting != None:
         urls.append(f"投票: {locateinfo.betting}")
-    if locateinfo.live != None:
-        urls.append(f"LIVE: {locateinfo.live}")
+    if race.live_url != None:
+        urls.append(f"LIVE: {race.live_url}")
     description = "\n".join(urls)
 
     event = Event()

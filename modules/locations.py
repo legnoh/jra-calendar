@@ -325,7 +325,7 @@ LOCATIONS_INFO: dict[LocationName, LocationInfo] = {
         youtube_channel_id="jraofficial",
         flag="🇫🇷",
         keiba_type=KeibaType.OVERSEAS,
-        netkeiba_id="A8",
+        netkeiba_id="C8",
         timezone=zoneinfo.ZoneInfo("Europe/Paris"),
     ),
     LocationName.DEAUVILLE: LocationInfo(

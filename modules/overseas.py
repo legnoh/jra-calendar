@@ -4,7 +4,9 @@ import locale
 from datetime import datetime, timedelta, date
 from zoneinfo import ZoneInfo
 from modules.dataclass import GradeRace, LocationName
+from modules.locations import LOCATIONS_INFO
 from modules.netkeiba import get_netkeiba_url
+from modules.youtube import get_upcoming_streams
 
 BASE_URL="https://jra.jp"
 KEIBA_URL=f"{BASE_URL}/keiba"
@@ -80,6 +82,19 @@ def get_grade_races_by_year(year:int) -> list:
             if ((type(race_data.start_at) == datetime and race_data.start_at.date() < now.date())
              or (type(race_data.start_at) == date and race_data.start_at < now.date())):
                 race_data.archive_url = "https://www.youtube.com/@jraofficial/search?query=" + urllib.parse.quote(race_data.name + " " + str(race_data.start_at.year))
+        
+        # 未来のレースで、かつ10日以内の場合はYouTube LiveのURLが取れるかどうか試す
+        if race_data.start_at > now and (race_data.start_at - now).days < 10:
+            youtube_datas = get_upcoming_streams(LOCATIONS_INFO[race_data.festival_location].youtube_channel_id)
+            # すべての配信候補の中で、日程が一致し、タイトルに「中央競馬」の文字がなく「中継」の文字が入っていたら採用する
+            candidate = None
+            for youtube_data in youtube_datas:
+                if youtube_data['start_at'].date() == race_data.start_at.date():
+                    if "中央競馬" not in youtube_data['title'] and "中継" in youtube_data['title']:
+                        if candidate == None or youtube_data['start_at'] < candidate['start_at']:
+                            candidate = youtube_data
+            if candidate != None:
+                race_data.live_url = candidate['url']
         
         logging.info(f"### {race_data.start_at}: {race_data.detail}")
         overseas_races.append(race_data)

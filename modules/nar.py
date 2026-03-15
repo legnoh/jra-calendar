@@ -4,6 +4,7 @@ import requests
 from modules.dataclass import GradeRace, LocationName
 from modules.locations import LOCATIONS_INFO
 from modules.netkeiba import get_netkeiba_url
+from modules.youtube import get_upcoming_streams
 
 NETKEIBA_SCHEDULE_URL = "https://nar.netkeiba.com/top/schedule.html"
 KEIBAGO_ROOT_URL = "https://www.keiba.go.jp"
@@ -60,6 +61,18 @@ def get_grade_races_by_year(year:int) -> list[GradeRace]:
         # 過去のレースの場合はアーカイブURLを追加する
         if race_data.start_at.date() < now.date():
             race_data.archive_url = "https://www.youtube.com/@nar_keiba/search?query=" + urllib.parse.quote(race_data.name + " " + str(race_data.start_at.year))
+        
+        # 未来のレースで、かつ10日以内の場合はYouTube LiveのURLが取れるかどうか試す
+        if race_data.start_at > now and (race_data.start_at - now).days < 10:
+            youtube_datas = get_upcoming_streams(LOCATIONS_INFO[race_data.festival_location].youtube_channel_id)
+            # すべての配信候補の中で、日程が一致し、かつ一番開始時間が早いものを採用する
+            candidate = None
+            for youtube_data in youtube_datas:
+                if youtube_data['start_at'].date() == race_data.start_at.date():
+                    if candidate == None or youtube_data['start_at'] < candidate['start_at']:
+                        candidate = youtube_data
+            if candidate != None:
+                race_data.live_url = candidate['url']
 
         # 発走時刻が取得できた場合は5分間、それ以外は全日イベントとして定義
         if race_data.start_at.hour != 0:

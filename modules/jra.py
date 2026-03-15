@@ -2,6 +2,7 @@ import datetime,logging,requests,re,unicodedata,urllib,zoneinfo
 import modules.bsclient as bsc
 from modules.dataclass import GradeRace, LocationName
 from modules.netkeiba import get_netkeiba_url
+from modules.youtube import get_upcoming_streams
 
 BASE_URL="https://jra.jp"
 KEIBA_URL=f"{BASE_URL}/keiba"
@@ -73,6 +74,13 @@ def get_grade_races_by_month(year:int, month:int, max_link_point: datetime.datet
                     # 過去のレースの場合はアーカイブURLを追加する
                     if race_data.start_at.date() < now.date():
                         race_data.archive_url = "https://www.youtube.com/@jraofficial/search?query=" + urllib.parse.quote(race_data.name + " " + str(race_data.start_at.year))
+                    
+                    # 未来のレースで、かつ10日以内の場合はYouTube LiveのURLが取れるかどうか試す
+                    if race_data.start_at > now and (race_data.start_at - now).days < 10:
+                        youtube_datas = get_upcoming_streams("jraofficial")
+                        for youtube_data in youtube_datas:
+                            if youtube_data['start_at'].date() == race_data.start_at.date() and "中央競馬全レース中継" in youtube_data["title"]:
+                                race_data.live_url = youtube_data['url']
 
                     # 発走時刻が取得できた場合は5分間、それ以外は全日イベントとして定義
                     if race_data.start_at.hour != 0:
