@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
 import yt_dlp
+import logging
+import zoneinfo
 
 def get_upcoming_streams(channel_id: str):
     opts = {
@@ -17,9 +19,10 @@ def get_upcoming_streams(channel_id: str):
             continue
 
         release_ts = entry.get('release_timestamp')
+        logging.info(f"Found stream: {entry.get('title')} (release at {datetime.fromtimestamp(release_ts, tz=zoneinfo.ZoneInfo('Asia/Tokyo')) if release_ts else 'unknown'})")
         live_entries.append({
             'url': entry.get('url'),
             'title': entry.get('title'),
-            'start_at': datetime.fromtimestamp(release_ts, tz=timezone.utc) if release_ts else None,
+            'start_at': datetime.fromtimestamp(release_ts, tz=zoneinfo.ZoneInfo('Asia/Tokyo')) if release_ts else None,
         })
     return live_entries
