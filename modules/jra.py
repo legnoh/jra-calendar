@@ -1,5 +1,7 @@
 import datetime,logging,requests,re,unicodedata,urllib,zoneinfo
 import modules.bsclient as bsc
+from modules.dataclass import GradeRace, LocationName
+from modules.netkeiba import get_netkeiba_url
 
 BASE_URL="https://jra.jp"
 KEIBA_URL=f"{BASE_URL}/keiba"
@@ -28,8 +30,8 @@ def get_max_link_point() -> datetime:
         logging.warning(f'get_max_link_point failed: {e}')
         return None
 
-def get_grade_races_by_month(year:int, month:int, max_link_point: datetime.datetime) -> list:
-    grade_races = []
+def get_grade_races_by_month(year:int, month:int, max_link_point: datetime.datetime) -> list[GradeRace]:
+    grade_races:list[GradeRace] = []
     now = datetime.datetime.now(ORIGIN_TZ)
 
     try:
@@ -42,53 +44,46 @@ def get_grade_races_by_month(year:int, month:int, max_link_point: datetime.datet
             if len(date['info'][0]['gradeRace']) > 0:
                 for race in date['info'][0]['gradeRace']:
 
-                    race_data = {
-                        "festival_time": None,
-                        "festival_location": re.sub(r"([0-9]+)回(.*)", "\\2", date['info'][0]['race'][int(race['pos'])-1]['name']).strip(),
-                        "festival_day": None,
-                        "race_number": None,
-                        "name": race['name'],
-                        "detail": unicodedata.normalize('NFKC', race['detail']),
-                        "grade": race['grade'],
-                        "start_at": datetime.datetime(year, month, race_day, tzinfo=ORIGIN_TZ),
-                        "end_at": None,
-                        "special_url": None,
-                        "netkeiba_url": None,
-                        "archive_url": None,
-                    }
+                    race_data = GradeRace(
+                        festival_location=LocationName(re.sub(r"([0-9]+)回(.*)", "\\2", date['info'][0]['race'][int(race['pos'])-1]['name']).strip()),
+                        name=race['name'],
+                        detail=unicodedata.normalize('NFKC', race['detail']),
+                        grade=race['grade'],
+                        start_at=datetime.datetime(year, month, race_day, tzinfo=ORIGIN_TZ),
+                    )
 
-                    if race_data['start_at'] <= max_link_point:
+                    if race_data.start_at <= max_link_point:
                         more_info = get_race_more_info(
-                            race_data['detail'],
-                            race_data['start_at'])
+                            race_data.detail,
+                            race_data.start_at)
                         if more_info != None:
-                            race_data['start_at'] = more_info['start_at']
-                            race_data['special_url'] = more_info['jra_url']
-                            race_data['festival_time'] = more_info['festival_time']
-                            race_data['festival_day'] = more_info['festival_day']
-                            race_data['race_number'] = more_info['race_number']
-                            race_data['netkeiba_url'] = get_netkeiba_url(
-                                race_data['start_at'],
-                                race_data["festival_location"],
-                                race_data["festival_time"],
-                                race_data["festival_day"],
-                                race_data["race_number"]
+                            race_data.start_at = more_info['start_at']
+                            race_data.special_url = more_info['jra_url']
+                            race_data.festival_time = more_info['festival_time']
+                            race_data.festival_day = more_info['festival_day']
+                            race_data.race_number = more_info['race_number']
+                            race_data.netkeiba_url = get_netkeiba_url(
+                                race_data.start_at,
+                                race_data.festival_location,
+                                race_data.race_number,
+                                festival_time=race_data.festival_time,
+                                festival_day=race_data.festival_day,
                             )
 
                     # 過去のレースの場合はアーカイブURLを追加する
-                    if race_data["start_at"].date() < now.date():
-                        race_data["archive_url"] = "https://www.youtube.com/@jraofficial/search?query=" + urllib.parse.quote(race_data["name"] + " " + str(race_data["start_at"].year))
+                    if race_data.start_at.date() < now.date():
+                        race_data.archive_url = "https://www.youtube.com/@jraofficial/search?query=" + urllib.parse.quote(race_data.name + " " + str(race_data.start_at.year))
 
                     # 発走時刻が取得できた場合は5分間、それ以外は全日イベントとして定義
-                    if race_data["start_at"].hour != 0:
-                        race_data["end_at"] = race_data["start_at"] + datetime.timedelta(minutes=5)
+                    if race_data.start_at.hour != 0:
+                        race_data.end_at = race_data.start_at + datetime.timedelta(minutes=5)
                     else:
-                        race_data["end_at"] = race_data["start_at"] + datetime.timedelta(days=1)
-                        race_data["start_at"] = race_data["start_at"].date()
-                        race_data["end_at"] = race_data["end_at"].date()
+                        race_data.end_at = race_data.start_at + datetime.timedelta(days=1)
+                        race_data.start_at = race_data.start_at.date()
+                        race_data.end_at = race_data.end_at.date()
 
                     grade_races.append(race_data)
-                    logging.info(f"### {race_data["start_at"]}: {race_data["detail"]}")
+                    logging.info(f"### {race_data.start_at}: {race_data.detail}")
         return grade_races
 
     except requests.exceptions.RequestException as e:
@@ -147,16 +142,3 @@ def get_race_more_info(name: str, date: datetime.datetime) -> dict:
                     }
     logging.error(f"no festival data found: {name} / {date}")
     return None
-
-def get_netkeiba_url(date: datetime.datetime, location: str, time:int, day:int, race_number: int) -> str:
-
-    # 過去のレースは着順表、今後のレースは出馬表を出す
-    now = datetime.datetime.now(tz=ORIGIN_TZ)
-    path = "result" if date < now else "shutuba"
-
-    # 競馬場名はIDに変換する
-    locations = ["札幌", "函館", "福島", "新潟", "東京", "中山", "中京", "京都", "阪神", "小倉"]
-
-    return "https://race.netkeiba.com/race/{p}.html?race_id={y}{l:0>2}{t:0>2}{d:0>2}{n:0>2}".format(
-        p=path, y=date.year, l=locations.index(location)+1, t=time, d=day, n=race_number
-    )
