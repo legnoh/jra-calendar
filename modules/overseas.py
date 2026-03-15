@@ -77,19 +77,20 @@ def get_grade_races_by_year(year:int) -> list:
             race_data.start_at = race_data.start_at.date()
             race_data.end_at = race_data.end_at.date()
 
+        race_start_date = race_data.start_at.date() if isinstance(race_data.start_at, datetime) else race_data.start_at
+
         # 過去のレース、かつ2023年以降の場合はアーカイブURLを追加する
         if race_data.start_at.year >= 2023:
-            if ((type(race_data.start_at) == datetime and race_data.start_at.date() < now.date())
-             or (type(race_data.start_at) == date and race_data.start_at < now.date())):
+            if race_start_date < now.date():
                 race_data.archive_url = "https://www.youtube.com/@jraofficial/search?query=" + urllib.parse.quote(race_data.name + " " + str(race_data.start_at.year))
         
         # 未来のレースで、かつ10日以内の場合はYouTube LiveのURLが取れるかどうか試す
-        if race_data.start_at > now and (race_data.start_at - now).days < 10:
+        if race_start_date > now.date() and (race_start_date - now.date()).days < 10:
             youtube_datas = get_upcoming_streams(LOCATIONS_INFO[race_data.festival_location].youtube_channel_id)
             # すべての配信候補の中で、日程が一致し、タイトルに「中央競馬」の文字がなく「中継」の文字が入っていたら採用する
             candidate = None
             for youtube_data in youtube_datas:
-                if youtube_data['start_at'].date() == race_data.start_at.date():
+                if youtube_data['start_at'] != None and youtube_data['start_at'].astimezone(ORIGIN_TZ).date() == race_start_date:
                     if "中央競馬" not in youtube_data['title'] and "中継" in youtube_data['title']:
                         if candidate == None or youtube_data['start_at'] < candidate['start_at']:
                             candidate = youtube_data
