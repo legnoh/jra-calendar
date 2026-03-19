@@ -29,11 +29,6 @@ jobs:
     - name: Install dependencies
       run: uv sync --frozen
 
-    - name: set locale
-      run: |
-        sudo locale-gen ja_JP.UTF-8
-        sudo update-locale LANG=ja_JP.UTF-8
-
     - name: Execute
       run: uv run main.py
       env:
