@@ -40,7 +40,7 @@ def get_grade_races_by_year(year:int) -> list[GradeRace]:
 
         meta = race.select("p")
         location = LocationName(meta[1].text.split(' ')[0].strip())
-        meta_start_at = f"{year}年{meta[0].text.replace("祝", "").replace("振", "")}"
+        meta_start_at = f"{year}年{meta[0].text.replace("祝", "").replace("休", "").replace("振", "")}"
 
         if LOCATIONS_INFO[location].keibago_babacode != None:
             race_data = GradeRace(
