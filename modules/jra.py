@@ -10,7 +10,7 @@ COMMON_URL=f"{KEIBA_URL}/common"
 ORIGIN_TZ=zoneinfo.ZoneInfo("Asia/Tokyo")
 
 def get_calendar_active_years() -> list[str]:
-    year = 2020 # 2019年以前はJRA側のテーブル形式が古いため未対応
+    year = 2026 # 2019年以前はJRA側のテーブル形式が古いため未対応
     last_crop = False
     years = []
     while last_crop == False:
@@ -48,7 +48,7 @@ def get_grade_races_by_month(year:int, month:int, max_link_point: datetime.datet
                     race_data = GradeRace(
                         festival_location=LocationName(re.sub(r"([0-9]+)回(.*)", "\\2", date['info'][0]['race'][int(race['pos'])-1]['name']).strip()),
                         name=race['name'],
-                        detail=unicodedata.normalize('NFKC', race['detail']),
+                        detail=unicodedata.normalize('NFKC', race['detail']).strip(),
                         grade=race['grade'],
                         start_at=datetime.datetime(year, month, race_day, tzinfo=ORIGIN_TZ),
                     )

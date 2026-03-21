@@ -15,14 +15,24 @@ def get_upcoming_streams(channel_id: str):
     
     live_entries = []
     for entry in info.get('entries', []):
-        if entry.get('live_status') == 'was_live':
-            continue
-
+        status = entry.get('live_status')
         release_ts = entry.get('release_timestamp')
-        logging.info(f"Found stream: {entry.get('title')} (release at {datetime.fromtimestamp(release_ts, tz=zoneinfo.ZoneInfo('Asia/Tokyo')) if release_ts else 'unknown'})")
+        if status == 'is_upcoming':
+            start_at = datetime.fromtimestamp(release_ts, tz=zoneinfo.ZoneInfo('Asia/Tokyo'))
+        elif status == 'is_live':
+            start_at = datetime.now(zoneinfo.ZoneInfo('Asia/Tokyo')).replace(
+                hour=9,
+                minute=0,
+                second=0,
+                microsecond=0,
+            )
+        else:
+            continue
+        logging.info(f"Found stream: {entry.get('title')}")
         live_entries.append({
             'url': entry.get('url'),
             'title': entry.get('title'),
-            'start_at': datetime.fromtimestamp(release_ts, tz=zoneinfo.ZoneInfo('Asia/Tokyo')) if release_ts else None,
+            'status': status,
+            'start_at': start_at,
         })
     return live_entries
