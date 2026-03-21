@@ -61,7 +61,7 @@ def create_event_block(race: GradeRace):
         urls.append(f"投票: {locateinfo.betting}")
     if race.live_url != None:
         urls.append(f"LIVE: {race.live_url}")
-        urls.append(f"\n----( Video Call )----\n{race.live_url}")
+        urls.append(f"\n----( Video Call )----\n{race.live_url}\n---===---")
     description = "\n".join(urls)
 
     event = Event()
