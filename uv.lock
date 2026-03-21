@@ -70,7 +70,7 @@ dependencies = [
 requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.14.3" },
     { name = "icalendar", specifier = ">=7.0.3" },
-    { name = "requests", specifier = ">=2.32.3" },
+    { name = "requests", specifier = ">=2.32.5" },
     { name = "yt-dlp", specifier = ">=2026.3.17" },
 ]
 
