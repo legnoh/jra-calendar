@@ -10,7 +10,7 @@ COMMON_URL=f"{KEIBA_URL}/common"
 ORIGIN_TZ=zoneinfo.ZoneInfo("Asia/Tokyo")
 
 def get_calendar_active_years() -> list[str]:
-    year = 2026 # 2019年以前はJRA側のテーブル形式が古いため未対応
+    year = 2020 # 2019年以前はJRA側のテーブル形式が古いため未対応
     last_crop = False
     years = []
     while last_crop == False:
