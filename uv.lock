@@ -81,7 +81,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "beautifulsoup4", specifier = ">=4.12.3" },
+    { name = "beautifulsoup4", specifier = ">=4.14.3" },
     { name = "icalendar", specifier = ">=6.1.1" },
     { name = "requests", specifier = ">=2.32.3" },
     { name = "yt-dlp", specifier = ">=2026.3.13" },
