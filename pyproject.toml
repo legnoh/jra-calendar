@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.14.4"
 dependencies = [
     "beautifulsoup4>=4.14.3",
-    "icalendar>=7.0.3",
+    "icalendar>=7.1.0",
     "requests>=2.33.1",
     "yt-dlp>=2026.3.17",
 ]
