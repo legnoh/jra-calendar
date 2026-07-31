@@ -9,6 +9,9 @@ KEIBA_URL=f"{BASE_URL}/keiba"
 COMMON_URL=f"{KEIBA_URL}/common"
 ORIGIN_TZ=zoneinfo.ZoneInfo("Asia/Tokyo")
 
+log_format = '%(asctime)s[%(filename)s:%(lineno)d][%(levelname)s] %(message)s'
+logging.basicConfig(format=log_format, datefmt='%Y-%m-%d %H:%M:%S%z', level=logging.INFO)
+
 def get_calendar_active_years() -> list[str]:
     year = 2020 # 2019年以前はJRA側のテーブル形式が古いため未対応
     last_crop = False
