@@ -8,5 +8,5 @@ dependencies = [
     "beautifulsoup4>=4.15.0",
     "icalendar>=7.3.0",
     "requests>=2.34.2",
-    "yt-dlp>=2026.6.9",
+    "yt-dlp>=2026.8.19",
 ]
