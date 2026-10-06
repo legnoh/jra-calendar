@@ -19,6 +19,10 @@ def get_upcoming_streams(channel_id: str):
         release_ts = entry.get('release_timestamp')
         logging.info(f"Checking stream: {entry.get('title')} with status: {status}")
         if status == 'is_upcoming':
+            release_ts = entry.get('release_timestamp')
+            if release_ts is None:
+                logging.warning(f"Stream {entry.get('title')} has no release timestamp, skipping.")
+                continue
             start_at = datetime.fromtimestamp(release_ts, tz=zoneinfo.ZoneInfo('Asia/Tokyo'))
         elif status == 'is_live':
             start_at = datetime.now(zoneinfo.ZoneInfo('Asia/Tokyo')).replace(
