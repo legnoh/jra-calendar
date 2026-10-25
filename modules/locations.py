@@ -436,6 +436,17 @@ LOCATIONS_INFO: dict[LocationName, LocationInfo] = {
         netkeiba_id="FD",
         timezone=zoneinfo.ZoneInfo("America/New_York"),
     ),
+    LocationName.KEENELAND: LocationInfo(
+        name="Keeneland Racecourse",
+        address="4201 Versailles Rd, Lexington, KY 40510, United States",
+        geo="38.046917, -84.606235",
+        live="https://sp.gch.jp/",
+        youtube_channel_id="jraofficial",
+        flag="🇺🇸",
+        keiba_type=KeibaType.OVERSEAS,
+        netkeiba_id="N0",
+        timezone=zoneinfo.ZoneInfo("America/Kentucky/Lexington"),
+    ),
     LocationName.RANDWICK: LocationInfo(
         name="Royal Randwick Racecourse",
         address="Ascot St, Randwick NSW 2031, Australia",

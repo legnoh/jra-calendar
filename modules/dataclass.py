@@ -48,6 +48,7 @@ class LocationName(Enum):
     SARATOGA = "サラトガ"
     SANTA_ANITA_PARK = "サンタアニタパーク"
     BELMONT_PARK = "ベルモントパーク"
+    KEENELAND = "キーンランド"
     RANDWICK = "ランドウィック"
     MOONEE_VALLEY = "ムーニーバレー"
     FLEMINGTON = "フレミントン"
@@ -60,7 +61,6 @@ class LocationName(Enum):
     LEOPARDSTOWN = "レパーズタウン"
     KING_ABDULAZIZ = "キングアブドゥルアジーズ"
     AL_RAYYAN = "アルライヤン"
-
 
 @dataclass
 class LocationInfo:
