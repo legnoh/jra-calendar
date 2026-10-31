@@ -445,7 +445,7 @@ LOCATIONS_INFO: dict[LocationName, LocationInfo] = {
         flag="🇺🇸",
         keiba_type=KeibaType.OVERSEAS,
         netkeiba_id="N0",
-        timezone=zoneinfo.ZoneInfo("America/Kentucky/Lexington"),
+        timezone=zoneinfo.ZoneInfo("America/New_York"),
     ),
     LocationName.RANDWICK: LocationInfo(
         name="Royal Randwick Racecourse",
