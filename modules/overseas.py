@@ -41,7 +41,7 @@ def get_grade_races_by_year(year:int) -> list:
     if soup == None:
         logging.warning(f"failed to get {year}'s grade races")
         return []
-    tr_races = soup.select("div.race_list > div > table > tbody > tr")
+    tr_races = soup.select("#contentsBody > div.race_list.mt30 > div:nth-child(2) > table > tbody > tr")
     for tr_race in tr_races:
 
         start_time_fixed = False
