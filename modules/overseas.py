@@ -19,7 +19,7 @@ def get_calendar_active_years() -> list[int]:
     soup = bsc.get_soup(f"{KEIBA_URL}/overseas/racelist/")
 
     # 年が変わったばかりの時はページが去年から更新されていないことがあるので、今の最新年をページ上から取得する
-    this_year_raw = soup.select_one("div#cal_block > div.race_list > div > table.main_race > caption > div.header > div.content > p").text
+    this_year_raw = soup.select_one("#contentsBody > div.race_list.mt30 > div:nth-child(2) > table > caption > div.header > div > p").text
     if this_year_raw != None:
         this_year = int(this_year_raw.removesuffix("年 発売レース"))
         years.append(this_year)
