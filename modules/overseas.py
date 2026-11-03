@@ -101,26 +101,36 @@ def get_grade_races_by_year(year:int) -> list:
         overseas_races.append(race_data)
     return overseas_races
 
-def get_start_time(url:str, year:int) -> datetime:
-
-    is_pm = False
-    start_time = None
-
+def get_start_time(url: str, year: int) -> datetime | None:
     soup = bsc.get_soup(url)
     if soup == None:
         logging.warning(f"failed to get start time: {url}")
         return None
-    time_datas = soup.select("div.time_area_line > div.main > div.time_area > div.unit")
+    time_datas = soup.select("div.time_area_line div.unit, div.time_area_grid div.unit")
     for time_data in time_datas:
-        if time_data.select_one("div.cap").text == "発走予定時刻":
-            time_raw = time_data.select_one("div.time > strong").text
-            if "午後" in time_raw:
-                is_pm = True
-            time_raw = re.sub('（.*）|午前|午後', '', time_raw).strip()
-            start_time = parse_jp_over24(s=time_raw, year=year, tz=ORIGIN_TZ)
-            if is_pm:
-                start_time += timedelta(hours=12)
-    return start_time
+        cap = time_data.select_one(".cap")
+        if cap is None or cap.get_text(strip=True) != "発走予定時刻":
+            continue
+
+        time_raw = time_data.get_text(" ", strip=True)
+        match = re.search(
+            r"(\d{1,2})月(\d{1,2})日.*?(午前|午後)?\s*(\d{1,2})時(\d{1,2})分",
+            time_raw,
+        )
+        if match is None:
+            logging.warning(f"failed to parse start time: {url} ({time_raw})")
+            return None
+
+        month, day, meridiem, hour, minute = match.groups()
+        hour = int(hour)
+        if meridiem == "午後":
+            hour = hour % 12 + 12
+        elif meridiem == "午前":
+            hour %= 12
+
+        time_string = f"{month}月{day}日{hour}時{minute}分"
+        return parse_jp_over24(s=time_string, year=year, tz=ORIGIN_TZ)
+    return None
 
 # 25時30分などの正規化されていない時間をパースする関数
 def parse_jp_over24(s: str, *, year: int | None = None, tz: ZoneInfo | None = None) -> datetime:
