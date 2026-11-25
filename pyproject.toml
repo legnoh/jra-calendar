@@ -9,5 +9,5 @@ dependencies = [
     "icalendar>=7.3.2",
     "requests>=2.34.2",
     "typing-extensions>=4.16.0",
-    "yt-dlp>=2026.10.26",
+    "yt-dlp>=2026.11.23",
 ]
